@@ -1,3 +1,5 @@
+import { PlanEngine } from './planning/engine.js';
+import { registerPlanning } from './tools/planning.js';
 import { readFile } from 'node:fs/promises';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { registerDiscovery } from './tools/discovery.js';
@@ -11,6 +13,8 @@ export function createServer(config: Configuration): McpServer {
   registerCapabilities(server, config);
   registerRepository(server, config);
   registerDiscovery(server, config);
+  const plans=new PlanEngine(config.allowedRoots,config.allowWrites);
+  registerPlanning(server,plans);
   for (const name of Object.keys(schemas)) {
     const uri = `appstore-connect://schemas/${name}`;
     server.registerResource(`schema-${name}`, uri, {mimeType: "application/schema+json"}, async () => ({contents: [{uri, mimeType: "application/schema+json", text: await readFile(new URL(`../resources/schemas/${name}.json`, import.meta.url), "utf8")}]}));

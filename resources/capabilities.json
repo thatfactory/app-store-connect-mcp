@@ -1,13 +1,15 @@
 {
   "schemaVersion": 1,
-  "stage": "discovery",
+  "stage": "plan-engine",
   "tools": [
     "get_capabilities",
     "validate_repository",
     "list_apps",
     "get_app_store_state",
     "export_app_store_state",
-    "prepare_app_record"
+    "prepare_app_record",
+    "apply_plan",
+    "get_operation_status"
   ],
   "supportedLocales": [
     "en-US",
@@ -23,5 +25,6 @@
   "liveVerified": [
     "Headroom read-only discovery",
     "Headroom redacted export"
-  ]
+  ],
+  "planEngineImplemented": true
 }
