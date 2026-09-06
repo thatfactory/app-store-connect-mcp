@@ -55,3 +55,10 @@ test('timeout aborts a pending response body and bounds reads after headers', as
   const api=client(async()=>{setTimeout(()=>controller.abort(),10);return new Response(new ReadableStream({start(c){c.enqueue(new TextEncoder().encode('{'));}}));});
   await assert.rejects(api.request('/v1/apps',{signal:controller.signal}),/cancelled or timed out/);
 });
+test('audited v3 price points reach transport without weakening URL isolation',async()=>{
+  let calls=0;
+  const api=client(async url=>{calls++;assert.equal(new URL(String(url)).pathname,'/v3/appPricePoints/123');return json({data:{id:'123'}});});
+  await api.request('/v3/appPricePoints/123');assert.equal(calls,1);
+  for(const url of ['https://evil.test/v3/appPricePoints/123','https://user@api.appstoreconnect.apple.com/v3/appPricePoints/123','https://api.appstoreconnect.apple.com/v3/appPricePoints/123#secret']) await assert.rejects(api.request(url),/exact public/);
+  assert.equal(calls,1);
+});

@@ -18,7 +18,7 @@ export class ApiClient {
   #url(path: string): URL {
     let url: URL;
     try { url = new URL(path, API_ORIGIN); } catch { throw new AppStoreError('unsafeUrl', 'Invalid Apple API URL.'); }
-    if (url.origin !== API_ORIGIN || url.username || url.password || url.hash || !/^\/v[12]\//.test(url.pathname)) throw new AppStoreError('unsafeUrl', 'Only the exact public Apple API origin is allowed.');
+    if (url.origin !== API_ORIGIN || url.username || url.password || url.hash || !/^\/v[1-9][0-9]*\//.test(url.pathname)) throw new AppStoreError('unsafeUrl', 'Only the exact public Apple API origin is allowed.');
     return url;
   }
   async request<T = unknown>(path: string, options: RequestOptions = {}): Promise<T | undefined> {
