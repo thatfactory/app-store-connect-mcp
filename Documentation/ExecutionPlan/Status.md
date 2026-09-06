@@ -7,3 +7,5 @@ The attached combined implementation plan is preserved at the root. Canonical ph
 CI and nightly match the sibling workflow layout and macOS runner, with Node 24 and contract tests for this pre-package phase. Phase 01 adds npm clean install/build and Phase 12 adds guarded publishing. README badges use the sibling design with this repository's URLs; NPM remains labelled planned until publication.
 
 Initial PR review required a correction to availability semantics: generic territory writes are now explicitly disabled/conditional with a manual fallback; pre-order writes are outside v1. Local documentation links are checked automatically.
+
+Phase 00 merged via PR #1 at 9fb8183 after exact-head Relay approval and green CI. Phase 01 candidate implements strict ESM package, lazy team-key JWT, safe bounded transport, offline stdio capabilities and package validation. 40 checks plus clean production tarball install/handshake passed locally; no live Apple calls. Publication workflow remains Phase 12.

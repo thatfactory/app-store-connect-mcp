@@ -16,3 +16,5 @@ Retrieved 2026-09-06. Apple documentation and the pinned 4.4.1 OpenAPI specifica
 Specification excerpts establish structural contracts only. Account role, editable state, upload destination policy and regional eligibility require their own evidence. No live API calls or writes occurred during Phase 00.
 
 - [Availability collection](https://developer.apple.com/documentation/appstoreconnectapi/app-availability), [pre-order creation](https://developer.apple.com/documentation/appstoreconnectapi/post-v2-appavailabilities), [pre-order territories](https://developer.apple.com/documentation/appstoreconnectapi/patch-v1-territoryavailabilities-_id_): documented write scope is pre-orders; generic territory writes are not established.
+
+- [Team-key JWT contract](https://developer.apple.com/documentation/appstoreconnectapi/generating-tokens-for-api-requests): ES256, issuer/audience and maximum ordinary 20-minute lifetime. Phase 01 signs with Node crypto and refreshes at a 60-second margin.
