@@ -1,12 +1,12 @@
 import { createHmac, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 import { realpath } from 'node:fs/promises';
-import { AppStoreError } from '../errors.js';
+import { AppStoreError,type AppleValidationIssue } from '../errors.js';
 import { contains } from '../repository/files.js';
 import { canonical, freeze, type Snapshot, type Operation, type Adapter } from './model.js';
 import { JournalStore } from './journal.js';
 export interface Approval {planId:string;digest:string;operationIds:string[];authorization:{confirmedByHost:true}}
 export type OperationState='notStarted'|'inFlight'|'confirmed'|'reconciled'|'failed'|'outcomeUnknown';
-export interface Entry {id:string;approved:boolean;state:OperationState;beforeHash?:string;afterHash?:string;remoteIds?:string[];code?:string;updatedAt:string}
+export interface Entry {id:string;approved:boolean;state:OperationState;beforeHash?:string;afterHash?:string;remoteIds?:string[];validationErrors?:AppleValidationIssue[];code?:string;updatedAt:string}
 export interface Journal {planId:string;digest:string;state:'planned'|'running'|'complete'|'partial';operations:Entry[];updatedAt:string}
 interface Plan {id:string;digest:string;snapshot:Snapshot;operations:Operation[];createdAt:number;expiresAt:number}
 interface RecordState {plan:Plan;adapter:Adapter;store:JournalStore;journal:Journal;consumed:boolean}
@@ -93,7 +93,7 @@ export class PlanEngine {
         let failure:unknown;
         try{signal?.throwIfAborted();await adapter.execute(operation,signal);}catch(error){failure=error;}
         if(failure instanceof AppStoreError&&failure.executionDisposition!=='outcomeUnknown'){
-          entry.state='failed';entry.code=failure.code;await this.#persist(record);break;
+          entry.state='failed';entry.code=failure.code;if(failure.validationErrors?.length)entry.validationErrors=failure.validationErrors;await this.#persist(record);break;
         }
         let after:Snapshot|undefined;
         try{after=await adapter.capture(signal);}catch{ /* Retain uncertainty; never replay execute. */ }

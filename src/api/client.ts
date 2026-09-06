@@ -1,3 +1,4 @@
+import { validationErrors } from './validation-errors.js';
 import { randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 import { AppStoreError } from '../errors.js';
@@ -41,8 +42,8 @@ export class ApiClient {
           headers: {Authorization: `Bearer ${token}`, Accept: 'application/json', ...(body === undefined ? {} : {'Content-Type': 'application/json'})},
           ...(body === undefined ? {} : {body})});
         if (!response.ok) {
-          await response.body?.cancel();
           if (!write && attempt < this.#limits.readRetries && (response.status === 429 || response.status >= 500)) {
+            await response.body?.cancel();
             const retryAfter = response.headers.get('retry-after');
             let milliseconds = 100 * 2 ** attempt;
             if (retryAfter) {
@@ -55,7 +56,7 @@ export class ApiClient {
           }
           const code = response.status === 401 ? 'authenticationFailed' : response.status === 403 ? 'permissionDenied'
             : response.status === 409 ? 'conflict' : response.status === 429 ? 'rateLimited' : 'appleApiError';
-          throw new AppStoreError(code, `Apple API returned HTTP ${response.status}.`, write && response.status >= 500 ? 'outcomeUnknown' : 'rejected', response.status, requestId);
+          throw new AppStoreError(code, `Apple API returned HTTP ${response.status}.`, write && response.status >= 500 ? 'outcomeUnknown' : 'rejected', response.status, requestId, await validationErrors(response,signal));
         }
         if (response.status === 204) { await response.body?.cancel(); return undefined; }
         const reader = response.body?.getReader();
