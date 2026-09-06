@@ -1,0 +1,12 @@
+{
+  "schema": "AppScreenshotSetCreateRequest",
+  "valid": {
+    "data": {
+      "attributes": {
+        "screenshotDisplayType": "APP_IPHONE_67"
+      },
+      "type": "appScreenshotSets"
+    }
+  },
+  "invalid": {}
+}

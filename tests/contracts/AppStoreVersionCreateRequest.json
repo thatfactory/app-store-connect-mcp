@@ -1,0 +1,21 @@
+{
+  "schema": "AppStoreVersionCreateRequest",
+  "valid": {
+    "data": {
+      "relationships": {
+        "app": {
+          "data": {
+            "id": "synthetic-fixture",
+            "type": "apps"
+          }
+        }
+      },
+      "attributes": {
+        "versionString": "synthetic-fixture",
+        "platform": "IOS"
+      },
+      "type": "appStoreVersions"
+    }
+  },
+  "invalid": {}
+}

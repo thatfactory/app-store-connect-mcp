@@ -1,0 +1,23 @@
+{
+  "schema": "AppAvailabilityV2CreateRequest",
+  "valid": {
+    "data": {
+      "relationships": {
+        "app": {
+          "data": {
+            "id": "synthetic-fixture",
+            "type": "apps"
+          }
+        },
+        "territoryAvailabilities": {
+          "data": []
+        }
+      },
+      "attributes": {
+        "availableInNewTerritories": false
+      },
+      "type": "appAvailabilities"
+    }
+  },
+  "invalid": {}
+}

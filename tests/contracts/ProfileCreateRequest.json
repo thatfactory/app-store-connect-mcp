@@ -1,0 +1,24 @@
+{
+  "schema": "ProfileCreateRequest",
+  "valid": {
+    "data": {
+      "relationships": {
+        "certificates": {
+          "data": []
+        },
+        "bundleId": {
+          "data": {
+            "id": "synthetic-fixture",
+            "type": "bundleIds"
+          }
+        }
+      },
+      "attributes": {
+        "profileType": "IOS_APP_DEVELOPMENT",
+        "name": "synthetic-fixture"
+      },
+      "type": "profiles"
+    }
+  },
+  "invalid": {}
+}

@@ -1,0 +1,21 @@
+{
+  "schema": "AppInfoLocalizationCreateRequest",
+  "valid": {
+    "data": {
+      "relationships": {
+        "appInfo": {
+          "data": {
+            "id": "synthetic-fixture",
+            "type": "appInfos"
+          }
+        }
+      },
+      "attributes": {
+        "name": "synthetic-fixture",
+        "locale": "synthetic-fixture"
+      },
+      "type": "appInfoLocalizations"
+    }
+  },
+  "invalid": {}
+}

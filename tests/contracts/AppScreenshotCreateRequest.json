@@ -1,0 +1,21 @@
+{
+  "schema": "AppScreenshotCreateRequest",
+  "valid": {
+    "data": {
+      "relationships": {
+        "appScreenshotSet": {
+          "data": {
+            "id": "synthetic-fixture",
+            "type": "appScreenshotSets"
+          }
+        }
+      },
+      "attributes": {
+        "fileName": "synthetic-fixture",
+        "fileSize": 1
+      },
+      "type": "appScreenshots"
+    }
+  },
+  "invalid": {}
+}

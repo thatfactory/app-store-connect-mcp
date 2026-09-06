@@ -1,0 +1,17 @@
+{
+  "schema": "AppStoreReviewDetailCreateRequest",
+  "valid": {
+    "data": {
+      "relationships": {
+        "appStoreVersion": {
+          "data": {
+            "id": "synthetic-fixture",
+            "type": "appStoreVersions"
+          }
+        }
+      },
+      "type": "appStoreReviewDetails"
+    }
+  },
+  "invalid": {}
+}
