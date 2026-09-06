@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "stage": "provisioning",
+  "stage": "metadata",
   "tools": [
     "get_capabilities",
     "validate_repository",
@@ -12,7 +12,8 @@
     "get_operation_status",
     "get_bundle_id_state",
     "inspect_xcode_project",
-    "plan_provisioning_changes"
+    "plan_provisioning_changes",
+    "plan_metadata_changes"
   ],
   "supportedLocales": [
     "en-US",
@@ -27,7 +28,9 @@
   "decodedScreenshotValidation": false,
   "liveVerified": [
     "Headroom read-only discovery",
-    "Headroom redacted export"
+    "Headroom redacted export",
+    "Headroom four-locale metadata sync",
+    "Headroom unchanged English and repeated metadata no-op"
   ],
   "planEngineImplemented": true,
   "provisioningCapabilities": [
@@ -36,5 +39,12 @@
     "ASSOCIATED_DOMAINS",
     "IN_APP_PURCHASE",
     "DATA_PROTECTION (IOS, explicit settings)"
+  ],
+  "metadataDomains": [
+    "appInfo",
+    "versionMetadata",
+    "version",
+    "review",
+    "categories (explicit manageCategories)"
   ]
 }

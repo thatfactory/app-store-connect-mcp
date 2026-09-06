@@ -11,7 +11,7 @@
 
 MCP server for managing Apple's App Store Connect. 📦
 
-**Status: discovery, export and bounded provisioning implemented; not published.** A source build exposes offline validation, app discovery, exact-version state reads, safe local export, manual app-record preparation, documentation and eight JSON Schemas. Headroom read-only discovery/export has been verified; bundle registration and a documented capability subset now use approved plans. The intended first-release features below are not yet available.
+**Status: discovery, export, metadata and bounded provisioning implemented; not published.** A source build exposes offline validation, app discovery, exact-version state reads, safe local export, manual app-record preparation, documentation and eight JSON Schemas. Headroom discovery/export and four-locale metadata synchronization have been verified; selected localized text, shared metadata, bundle registration and a documented capability subset now use approved plans. The intended first-release features below are not yet available.
 
 Keep App Store metadata and localized screenshot sources beside your application code. Let an MCP-capable agent inspect the account, validate the repository, show a concrete change plan, and apply the approved changes through Apple's documented APIs.
 
@@ -136,6 +136,10 @@ The validator bounds each text/JSON file to 1 MiB, each referenced asset to 32 M
 
 Exports include metadata and a separate inventory/English fingerprint. Review contacts/logins become environment references; freeform review notes are withheld for owner inspection. No signed upload URLs or CDN downloads are exported. Null prose fields are recorded as unmanaged in inventory because plain text has no null representation. Unsupported locale/release configuration stops export instead of substituting defaults. Partial local exports remain visible for inspection after failure. See [read-only acceptance evidence](Documentation/Acceptance-Phase-03.md).
 
-The shared plan engine is implemented, with immutable process-bound plans, exact-subset host approval, flushed redacted journals, stale-state checks and readback reconciliation. The first adapter covers bundle IDs and a bounded capability subset; text, screenshots, commerce and submission remain pending. See [plan and recovery semantics](Documentation/Plan-and-Apply.md).
+The shared plan engine is implemented, with immutable process-bound plans, exact-subset host approval, flushed redacted journals, stale-state checks and readback reconciliation. Adapters cover selected localized/shared metadata, bundle IDs and a bounded capability subset; screenshots, commerce and submission remain pending. See [plan and recovery semantics](Documentation/Plan-and-Apply.md).
 
 [Provisioning and static Xcode inspection](Documentation/Provisioning-and-Xcode.md) describes supported capabilities, unresolved settings and signing impacts.
+
+[Metadata synchronization](Documentation/Metadata-Sync.md) explains independent locale families, explicit shared domains and secret-safe review details.
+
+[Headroom metadata acceptance](Documentation/Acceptance-Phase-06.md) records verified readback, unchanged English and a repeated no-op plan.

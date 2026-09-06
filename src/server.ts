@@ -1,3 +1,4 @@
+import { registerMetadata } from './tools/metadata.js';
 import { registerProvisioning } from './tools/provisioning.js';
 import { PlanEngine } from './planning/engine.js';
 import { registerPlanning } from './tools/planning.js';
@@ -17,6 +18,7 @@ export function createServer(config: Configuration): McpServer {
   const plans=new PlanEngine(config.allowedRoots,config.allowWrites);
   registerPlanning(server,plans);
   registerProvisioning(server,config,plans);
+  registerMetadata(server,config,plans);
   for (const name of Object.keys(schemas)) {
     const uri = `appstore-connect://schemas/${name}`;
     server.registerResource(`schema-${name}`, uri, {mimeType: "application/schema+json"}, async () => ({contents: [{uri, mimeType: "application/schema+json", text: await readFile(new URL(`../resources/schemas/${name}.json`, import.meta.url), "utf8")}]}));

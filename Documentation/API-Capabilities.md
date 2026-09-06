@@ -1,14 +1,16 @@
 # Capability and delivery status
 
-Phases 00 and 01 are merged. Phase 02 adds offline validate_repository and generated schema resources alongside get_capabilities. Read adapters are now exposed; Headroom discovery/export is live-verified. Write adapters and all mutation capabilities remain pending.
+Phases 00–05 are merged. Phase 06 adds selected localized metadata, version and review plans through the same approved engine. Screenshot, commerce, broader signing helpers and submission remain pending. Live acceptance is recorded separately from mock coverage.
 
 | Phase | Capability | Status |
 | --- | --- | --- |
 | 00 | API provenance, endpoint contracts and unsupported boundaries | Merged PR #1 |
 | 01 | Stdio, credentials, bounded transport and package smoke | Merged PR #2 |
 | 02 | Scoped offline validation and generated schemas | Merged PR #3 |
-| 03 | Discovery/export | Implemented; Headroom reads/export live-verified |
-| 04–06 | Reviewed plans, identifiers/capabilities, localized text | Pending |
+| 03 | Discovery/export | Merged PR #4; Headroom reads/export verified |
+| 04 | Immutable approved plans and journals | Merged PR #5 |
+| 05 | Bounded identifiers/capabilities and static Xcode proposals | Merged PR #6; Headroom no-op read verified |
+| 06 | Localized text and explicit shared metadata | Implemented candidate; Headroom four-locale sync verified |
 | 07–09 | Screenshot upload/sync, base price and availability | Pending |
 | 10–11 | Provisioning helpers, guarded submission | Pending |
 | 12 | Headroom acceptance and release packaging | Pending |
