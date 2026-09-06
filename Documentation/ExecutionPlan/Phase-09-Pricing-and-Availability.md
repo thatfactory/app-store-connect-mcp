@@ -23,3 +23,7 @@ Test an already-free no-op, missing commerce config, existing paid app with defa
 ## Exit gate
 
 Headroom's already configured free price remains unchanged unless an approved difference exists. An all-territory plan is transparent and idempotent. Readiness distinguishes configured distribution from effective availability and owner obligations.
+
+## Phase 00 audit resolution (2026-09-06)
+
+Generic territory inclusion/exclusion writes remain conditional and disabled: the selected availability writes are publicly documented for pre-orders. Phase 09 implements read/catalog comparison and an exact manualActionRequired report until a generic public mutation contract is established. It must not use POST /v2/appAvailabilities or PATCH /v1/territoryAvailabilities/{id} for ordinary all-territory/add-remove synchronization. Pre-order lifecycle is outside v1. This resolution supersedes unconditional availability-write wording above; pricing remains independently in scope. See API-Contract.md and contracts/operation-policy.json.

@@ -16,7 +16,8 @@ Reproduce by downloading the source URL in provenance, extracting `openapi.oas (
 | Screenshots | Version localization → screenshot set → screenshot; ordered relationship PATCH exists | Only APP_DESKTOP initially; no independent cloud media library or cross-parent ID reuse |
 | Transfer | Reserve fileName/fileSize, upload returned offset/length ranges, commit uploaded and sourceFileChecksum | Whole-file MD5 for Apple, SHA-256 for local identity; require complete processing before success |
 | Pricing | POST /v1/appPriceSchedules requires app, baseTerritory, manualPrices and inline price resources | Resolve exact catalog price point, including zero; existing future schedules require explicit handling |
-| Availability | POST /v2/appAvailabilities; inline territory availability relationships | Enumerate full territory catalog; preserve omitted scope; regional eligibility is separate |
+| Availability reads | GET availability v2 and territory resources | Enumerate full catalogs; requested coverage differs from effective eligibility |
+| Availability writes | POST /v2/appAvailabilities and PATCH /v1/territoryAvailabilities/{id} are documented for pre-orders | Generic post-release territory mutation is conditional and disabled; manualActionRequired fallback. Pre-order management is outside v1 |
 | Provisioning | Certificate CSR creation, device operations, profile relationships are schema-defined | Exact explicit resources; unknown compatibility and destructive effects block; no private-key input |
 | Submission | Create reviewSubmission, create item referencing version, update submitted | Separate authorization/flag; compatible existing draft only; no ordinary apply; release behavior warning |
 
@@ -35,3 +36,7 @@ Apple's asset guide defines offsets and lengths in bytes and permits retrying fa
 ## Evidence levels
 
 All inventory entries are schemaVerified. Resource behavior linked in Sources is documented. Phase 00 tests check reproducibility, references and representative payload shape; these are not adapter integration tests. Every adapter must add valid/invalid contract fixtures and behavior tests before fixtureTested is promoted. All domains are liveVerified=false. Conditional writes cannot be exposed before the corresponding phase resolves and tests its conditions.
+
+## Availability semantic boundary
+
+Apple documents [creation](https://developer.apple.com/documentation/appstoreconnectapi/post-v2-appavailabilities) and [territory modification](https://developer.apple.com/documentation/appstoreconnectapi/patch-v1-territoryavailabilities-_id_) specifically for pre-orders. The broader payload attribute `available` does not establish generic post-release inclusion/exclusion. No separate supported generic mutation was established from the current public contract. `contracts/operation-policy.json` therefore allows no ordinary availability writes. Phase 09 may compare desired/live territory sets and report a manual action, but must never substitute a pre-order operation. Any future pre-order implementation requires explicit intent, an eligible pre-order state, verified expected-release-date semantics and its own reviewed scope. Schema-valid data alone is insufficient.

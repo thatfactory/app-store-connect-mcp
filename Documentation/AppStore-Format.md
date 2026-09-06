@@ -119,7 +119,7 @@ A privacy URL may be inherited from the explicitly declared shared default or ov
 }
 ```
 
-Copyright is one field on the platform version, not one per locale. Do not include the copyright symbol merely because it appears in App Store Connect's UI; Apple's interface adds it. The owner must verify the actual rights holder rather than assuming a trading name is the legal holder. [S6]
+Copyright is one field on the platform version, not one per locale. Do not include the copyright symbol merely because it appears in App Store Connect's UI; Apple's interface adds it. The owner must verify the actual rights holder rather than assuming a trading name is the legal holder.
 
 `releaseType` is a managed value when explicitly present. The initializer writes `MANUAL` for a new setup; the parser does not add it when importing an existing auto-release version. A change in release behavior must be visible in the plan. Date-based release options can be excluded from v1 or supported only with verified schema validation; do not invent date semantics.
 
@@ -138,7 +138,7 @@ The initializer can use `en-US` and free commerce for a new root. Those are init
 
 Read UTF-8, reject malformed encoding, normalize CRLF to LF, and remove one conventional terminal file newline before measuring/uploading. Do not trim other whitespace, rewrite punctuation, remove accents, change keyword choices, or silently shorten copy. Show any normalization in the validation result.
 
-The single-line keyword field permits ordinary keyword phrases where Apple supports them; spaces within a phrase are not automatically deleted. Whitespace around separators, repeated tokens, duplicated title terms, and short terms can be diagnostics. Hard limits and marketing suggestions are different classes of rule. Apply the documented byte/character budget from the versioned field registry, and verify Unicode edge cases during Phase 00. [S6]
+The single-line keyword field permits ordinary keyword phrases where Apple supports them; spaces within a phrase are not automatically deleted. Whitespace around separators, repeated tokens, duplicated title terms, and short terms can be diagnostics. Hard limits and marketing suggestions are different classes of rule. Apply the documented byte/character budget from the versioned field registry, and verify Unicode edge cases during Phase 00.
 
 Scope-aware validation matters: a text-only plan for `de-DE` must not fail because screenshots for `ja` have not been created yet. It must fail for a malformed German field that the plan would write. Full release-readiness validation considers every required locale/display combination and missing requirement.
 
@@ -160,7 +160,7 @@ Scope-aware validation matters: a text-only plan for `de-DE` must not fail becau
 
 This is an example of a login-required app, not a statement that these are Headroom's reviewed settings. The owner decides how App Review can access Headroom and whether demo-account fields are appropriate for its Codex sign-in flow.
 
-`review-notes.txt` contains non-secret reviewer instructions and prerequisites. It maps to the `notes` field, including anything described in conversation as "Requirements." Do not write a separate unsupported requirements field. Notes are not localized per storefront and have their own byte limit. [S6]
+`review-notes.txt` contains non-secret reviewer instructions and prerequisites. It maps to the `notes` field, including anything described in conversation as "Requirements." Do not write a separate unsupported requirements field. Notes are not localized per storefront and have their own byte limit.
 
 Only an explicitly allowed `APPSTORE_REVIEW_*` namespace can be dereferenced. Reject API keys or arbitrary environment-variable access masquerading as review data. Demo passwords must always be secret references. Public business contact strings may be literal by deliberate choice; templates default to references. Never place secrets into note-file interpolation: v1 has no generic templating engine.
 
@@ -184,7 +184,7 @@ Missing review secrets block only an operation that would write/use them, not un
 
 Paths are relative to the `AppStore/` root, not to the nested screenshots.json file. They must resolve to regular local files inside that root. Reject remote URLs, absolute paths, path traversal, escaping symlinks, unresolved Git LFS pointer files, and duplicate references within a set. Explicit list order is display order; filenames do not silently determine order.
 
-For the current Mac display type, accepted dimensions are 1280x800, 1440x900, 2560x1600, and 2880x1800. The default is not to resize or transcode anything. Validate according to the versioned Apple screenshot registry, including file format and any prescribed alpha/color constraints. Unknown display types block screenshot writes until supported; the same source layout can later cover more platforms. [S8-S10]
+For the current Mac display type, accepted dimensions are 1280x800, 1440x900, 2560x1600, and 2880x1800. The default is not to resize or transcode anything. Validate according to the versioned Apple screenshot registry, including file format and any prescribed alpha/color constraints. Unknown display types block screenshot writes until supported; the same source layout can later cover more platforms.
 
 A second version can reference those same paths. When an older version manifest must remain reproducible, add a new versioned or content-addressed filename instead of overwriting a source path shared by multiple versions. Validation should report which manifests reference a changed source, but apply still targets only the explicitly selected version. A locale may explicitly reference another locale's language-neutral image, but the validator should flag this for review; it must never substitute another language's image automatically. The source file being shared does not make the remote screenshot object global.
 
@@ -254,4 +254,6 @@ Export to a fresh approved directory and refuse overwrites by default. Preserve 
 
 The agent reviews/moves approved exported files into `AppStore/` using its normal repository tools. It can then author translations, commit, and push. The MCP server does not make commits or push branches. Include repository commit and dirty-input fingerprints in a plan when available, but local exact file hashes remain authoritative for the approved operation.
 
-Sources: [Sources.md](Sources.md), particularly S4-S12 and S15. The file format itself is a product proposal, not an Apple schema.
+Sources: [Sources.md](Sources.md). The file format itself is a product proposal, not an Apple schema.
+
+Current API audit: generic availability writes are conditional and disabled; pre-order writes cannot implement ordinary territory changes. See [API contract](API-Contract.md).

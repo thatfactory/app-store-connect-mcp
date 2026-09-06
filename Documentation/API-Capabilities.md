@@ -12,3 +12,5 @@ Phase 00 establishes the API contract; runtime implementation is pending. All op
 | 12 | Headroom acceptance and release packaging | Pending |
 
 Initial app creation is manual. Screenshot source assets and translations belong to the caller. Additional display families, private endpoints, binary uploads, IAPs and public release actions are outside the first implementation. See API-Contract.md for conditional write boundaries.
+
+Generic territory mutation is conditional/disabled; Phase 09 supplies read-only comparison and manual-action reporting. The schema availability writes are pre-order-specific and outside v1.

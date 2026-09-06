@@ -55,3 +55,17 @@ for (const file of fs.readdirSync(new URL('.', import.meta.url)).filter(name => 
     assert.equal(accepts(fixture.invalid, schema.components.schemas[fixture.schema]), false);
   });
 }
+
+test('ordinary territory changes cannot select pre-order write operations', () => {
+  const policy = JSON.parse(fs.readFileSync(new URL('../../contracts/operation-policy.json', import.meta.url)));
+  assert.equal(policy.genericAvailabilityMutation.enabled, false);
+  assert.deepEqual(policy.genericAvailabilityMutation.allowedOperations, []);
+  assert.equal(policy.genericAvailabilityMutation.fallback, 'manualActionRequired');
+  assert.equal(policy.preOrderMutation.enabled, false);
+  assert.deepEqual(policy.preOrderMutation.documentedOperations, ['POST /v2/appAvailabilities', 'PATCH /v1/territoryAvailabilities/{id}']);
+  for (const operation of policy.preOrderMutation.documentedOperations) {
+    const [method, endpoint] = operation.split(' ');
+    assert.ok(schema.paths[endpoint][method.toLowerCase()]);
+    assert.ok(!policy.genericAvailabilityMutation.allowedOperations.includes(operation));
+  }
+});

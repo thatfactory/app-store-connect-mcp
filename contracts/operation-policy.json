@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "genericAvailabilityMutation": {
+    "status": "conditional",
+    "enabled": false,
+    "allowedOperations": [],
+    "fallback": "manualActionRequired",
+    "reason": "No public generic post-release inclusion/exclusion write contract established. Pre-order operations must not implement ordinary territory reconciliation."
+  },
+  "preOrderMutation": {
+    "status": "outOfScope",
+    "enabled": false,
+    "documentedOperations": ["POST /v2/appAvailabilities", "PATCH /v1/territoryAvailabilities/{id}"],
+    "requiredEvidence": ["explicit pre-order intent", "eligible pre-order state", "verified release dates and territory semantics", "separate reviewed implementation"]
+  }
+}

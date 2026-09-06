@@ -36,13 +36,13 @@ Provide bounded, explicit workflows for certificates, devices, and profiles: ins
 
 Resolve an existing app using its App Store ID and bundle ID and verify that both refer to the same app. When an app record is missing, prepare the exact bootstrap values for the owner. Initial app-record creation is a documented limitation of the baseline, not a fake success. Registering its bundle ID can still be automated.
 
-Create or select an editable version for an explicit platform and version string. English (US), `en-US`, is the initialization default, not an instruction to reset an existing app's primary language. New version templates default to manual release. [S1-S3]
+Create or select an editable version for an explicit platform and version string. English (US), `en-US`, is the initialization default, not an instruction to reset an existing app's primary language. New version templates default to manual release.
 
 ### Metadata and App Review information
 
 Manage localized app names, subtitles, privacy-policy URLs, descriptions, keywords, support and marketing URLs, promotional text, and update release notes where applicable. Manage categories, version-wide copyright, and version-wide review contacts, demo-account references, and testing notes. Store "requirements for the reviewer" in review notes; there is no invented separate requirements endpoint.
 
-Correctly distinguish the two localization resource families: app-information localizations and App Store version localizations. Updating one must not be reported as having updated both. Copyright and review details are not duplicated per locale. [S4-S7]
+Correctly distinguish the two localization resource families: app-information localizations and App Store version localizations. Updating one must not be reported as having updated both. Copyright and review details are not duplicated per locale.
 
 ### Screenshots
 
@@ -50,19 +50,19 @@ Upload existing local PNG/JPEG sources to the right app, platform version, local
 
 Set screenshot order explicitly, preserve unrelated remote screenshots by default, and support an explicitly approved exact replacement. Reuse sources across versions without requiring file duplication. An unchanged destination/source combination must not be uploaded again.
 
-Media Manager is the App Store Connect UI for these version-scoped assets. The first release does not promise a standalone Apple media library, a remote tag system, or cross-parent screenshot-ID reuse. The local `AppStore/assets/` directory supplies the reusable library abstraction. [S8-S10]
+Media Manager is the App Store Connect UI for these version-scoped assets. The first release does not promise a standalone Apple media library, a remote tag system, or cross-parent screenshot-ID reuse. The local `AppStore/assets/` directory supplies the reusable library abstraction.
 
 ### Pricing and availability
 
 Initialize templates as free and request all current App Store territories. Reconcile only when the commerce scope is selected and explicitly configured. Resolve actual price-point and territory resources instead of hard-coding price-tier IDs or a country count.
 
-Preserve an existing paid price when no price is managed. Adding a default to a schema must never turn an existing paid app free. Selecting all territories expresses the desired storefront set, not a claim that every region is immediately distributable. Read back requested versus effective availability and report blocking requirements. [S11-S12]
+Preserve an existing paid price when no price is managed. Adding a default to a schema must never turn an existing paid app free. Selecting all territories expresses the desired storefront set, not a claim that every region is immediately distributable. Read back requested versus effective availability and report blocking requirements.
 
 ### Submission
 
 Provide a readiness report and bind an explicitly identified already uploaded build. A separate, narrowly approved submission action can submit the selected version using the currently supported review-submission workflow.
 
-Normal synchronization never submits or publishes. First-release scope includes submission for review, not automatic public release. Existing automatic-release settings must be surfaced before submission because approval could then publish the app. [S13]
+Normal synchronization never submits or publishes. First-release scope includes submission for review, not automatic public release. Existing automatic-release settings must be surfaced before submission because approval could then publish the app.
 
 ## 4. Non-goals and honest boundaries
 
@@ -135,4 +135,6 @@ Do not extract a shared npm core with `xcode-cloud-mcp` before the two implement
 
 README is the short entry point and accurately reflects shipped features. Product.md contains rationale and scope while the product is being established. The execution plan is implementation guidance, not marketing. Update the public README at every release and keep Product.md until its distinct content can be merged without losing the roadmap or safety contract.
 
-Sources: see [Sources.md](Sources.md), especially S1-S13 and R1-R4. Product design decisions in this document are proposals, not claims that Apple provides identical abstractions.
+Sources: see [Sources.md](Documentation/Sources.md). Product design decisions in this document are proposals, not claims that Apple provides identical abstractions.
+
+Current API audit: generic availability writes are conditional and disabled; pre-order writes cannot implement ordinary territory changes. See [API contract](Documentation/API-Contract.md).

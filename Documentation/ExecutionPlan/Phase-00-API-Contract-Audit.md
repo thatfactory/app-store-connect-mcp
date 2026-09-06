@@ -25,3 +25,7 @@ Mark operations `documented`, `schemaVerified`, `fixtureTested`, and `liveVerifi
 ## Exit gate
 
 The capability matrix has no ambiguous write contract: each operation is confirmed, explicitly conditional, or unavailable with a fallback. The schema provenance and risk decisions are reviewable. Later phases must not implement conditional writes until resolved. Update shared documents for any discrepancy rather than scattering exceptions through handlers.
+
+## Phase 00 audit resolution (2026-09-06)
+
+Generic territory inclusion/exclusion writes remain conditional and disabled: the selected availability writes are publicly documented for pre-orders. Phase 09 implements read/catalog comparison and an exact manualActionRequired report until a generic public mutation contract is established. It must not use POST /v2/appAvailabilities or PATCH /v1/territoryAvailabilities/{id} for ordinary all-territory/add-remove synchronization. Pre-order lifecycle is outside v1. This resolution supersedes unconditional availability-write wording above; pricing remains independently in scope. See API-Contract.md and contracts/operation-policy.json.

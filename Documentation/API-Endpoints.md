@@ -1,6 +1,6 @@
 # Pinned endpoint inventory
 
-Generated from Apple OpenAPI 4.4.1. Payload definitions, required fields, relationships, nullable semantics, filters and pagination parameters are in [the focused schema](../contracts/apple-openapi.json). Schema presence establishes payload shape, not account permission or editable state. Every write remains conditional on the domain guards in API-Contract.md and its phase tests. No operation is live-verified.
+Generated from Apple OpenAPI 4.4.1. Payload definitions, required fields, relationships, nullable semantics, filters and pagination parameters are in [the focused schema](../contracts/apple-openapi.json). Schema presence establishes payload shape, not account permission or editable state. Every write remains conditional on the domain guards in API-Contract.md and its phase tests. No operation is live-verified. In particular, POST /v2/appAvailabilities and PATCH /v1/territoryAvailabilities/{id} are documented pre-order operations, excluded from general territory reconciliation by [operation policy](../contracts/operation-policy.json).
 
 | Method | Path | Request schema | Responses |
 | --- | --- | --- | --- |

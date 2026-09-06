@@ -14,3 +14,5 @@ Retrieved 2026-09-06. Apple documentation and the pinned 4.4.1 OpenAPI specifica
 - [Xcode regions](https://developer.apple.com/documentation/xcode/choosing-localization-regions-and-scripts): binary locale identifiers are separate from store identifiers.
 
 Specification excerpts establish structural contracts only. Account role, editable state, upload destination policy and regional eligibility require their own evidence. No live API calls or writes occurred during Phase 00.
+
+- [Availability collection](https://developer.apple.com/documentation/appstoreconnectapi/app-availability), [pre-order creation](https://developer.apple.com/documentation/appstoreconnectapi/post-v2-appavailabilities), [pre-order territories](https://developer.apple.com/documentation/appstoreconnectapi/patch-v1-territoryavailabilities-_id_): documented write scope is pre-orders; generic territory writes are not established.
