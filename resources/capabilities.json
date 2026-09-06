@@ -1,1 +1,19 @@
-{"schemaVersion":1,"stage":"foundation","tools":["get_capabilities"],"remoteWritesImplemented":false,"submissionImplemented":false,"genericAvailabilityMutation":"manualActionRequired"}
+{
+  "schemaVersion": 1,
+  "stage": "repositoryValidation",
+  "tools": [
+    "get_capabilities",
+    "validate_repository"
+  ],
+  "supportedLocales": [
+    "en-US",
+    "de-DE",
+    "fr-FR",
+    "ja",
+    "pt-BR"
+  ],
+  "remoteWritesImplemented": false,
+  "submissionImplemented": false,
+  "genericAvailabilityMutation": "manualActionRequired",
+  "decodedScreenshotValidation": false
+}

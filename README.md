@@ -11,7 +11,7 @@
 
 MCP server for managing Apple's App Store Connect. 📦
 
-**Status: foundation implemented; not published.** A source build exposes only offline `get_capabilities` and packaged documentation resources. Authentication and bounded Apple transport have automated tests; discovery and all mutations remain pending. The intended first-release features below are not yet available.
+**Status: offline validation implemented; not published.** A source build exposes `get_capabilities`, `validate_repository`, documentation, and eight generated JSON Schemas. Authentication and bounded Apple transport have automated tests; discovery and all mutations remain pending. The intended first-release features below are not yet available.
 
 Keep App Store metadata and localized screenshot sources beside your application code. Let an MCP-capable agent inspect the account, validate the repository, show a concrete change plan, and apply the approved changes through Apple's documented APIs.
 
@@ -116,3 +116,11 @@ Run `npm ci` and `npm run check` for strict type checking, tests, build, and a c
 Planned distribution: public scoped npm package, MIT license, GitHub release publishing with trusted publishing where configured. Keep all customer repositories, credentials, exported review information, and signing artifacts out of the package tarball.
 
 This is an independent project and is not affiliated with or endorsed by Apple.
+
+## Offline validation
+
+Start with `--allowed-root /absolute/path/to/checkout`, then call `validate_repository` with the absolute AppStore directory as `root`. Optional `domains`, `locales`, `platform` (directory spelling, such as `macOS`) and `version` limit the check. Domains: `appInfo`, `versionMetadata`, `version`, `review`, `screenshots`, `commerce`, `provisioning`. With no selector, validation considers declared platforms and discovered versions.
+
+The initial locale registry covers en-US, de-DE, fr-FR, ja and pt-BR. Other Apple-supported locales require registry expansion. Validation preserves omission/null/empty values; it does not determine creation completeness or release readiness. JSON schema checks, paths, text budgets and screenshot manifests are implemented; decoded image validation remains Phase 07. Review environment references are field-allowlisted and resolved values never appear in results. Character checks use conservative UTF-16 units and report code points/graphemes/UTF-8 bytes for prose. No URLs are fetched.
+
+The validator bounds each text/JSON file to 1 MiB, each referenced asset to 32 MiB, total read bytes to 64 MiB and files to 2000 per request. Results include up to 200 diagnostics and explicitly report truncation. Use narrower selectors for larger roots. The [synthetic example](examples/minimal/README.md) validates structurally but is not a ready-to-submit listing. Run `npm run schemas:check` to verify published schemas match the runtime validators.

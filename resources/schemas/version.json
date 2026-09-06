@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "platform": {
+      "type": "string",
+      "enum": [
+        "MAC_OS",
+        "IOS",
+        "TV_OS",
+        "VISION_OS"
+      ]
+    },
+    "versionString": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "copyright": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "releaseType": {
+      "type": "string",
+      "enum": [
+        "MANUAL",
+        "AFTER_APPROVAL"
+      ]
+    },
+    "defaults": {
+      "type": "object",
+      "properties": {
+        "supportUrl": {
+          "type": "string",
+          "maxLength": 2048,
+          "format": "uri"
+        }
+      },
+      "required": [
+        "supportUrl"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "platform",
+    "versionString"
+  ],
+  "additionalProperties": false
+}

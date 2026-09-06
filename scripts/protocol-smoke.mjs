@@ -1,21 +1,26 @@
 import assert from 'node:assert/strict';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-export async function protocolSmoke(command, args, cwd) {
+export async function protocolSmoke(command, args, cwd, appRoot) {
   const transport = new StdioClientTransport({command, args, cwd, env: {PATH: process.env.PATH || ''}, stderr: 'pipe'});
   let stderr = '';
   transport.stderr?.on('data', chunk => { stderr += chunk.toString(); });
   const client = new Client({name:'package-smoke',version:'1.0.0'});
   try {
     await client.connect(transport);
-    assert.deepEqual((await client.listTools()).tools.map(tool => tool.name), ['get_capabilities']);
+    assert.deepEqual((await client.listTools()).tools.map(tool => tool.name), ['get_capabilities','validate_repository']);
     const capabilities = await client.callTool({name:'get_capabilities',arguments:{}});
     assert.equal(capabilities.isError, undefined);
     assert.equal(capabilities.structuredContent.remoteWritesImplemented, false);
     const invalid = await client.callTool({name:'get_capabilities',arguments:{unexpected:true}});
     assert.equal(invalid.isError, true);
+    if (appRoot) {
+      const validation = await client.callTool({name:'validate_repository',arguments:{root:appRoot,domains:['appInfo']}});
+      assert.equal(validation.isError, undefined);
+      assert.equal(validation.structuredContent.valid, true);
+    }
     const resources = await client.listResources();
-    assert.equal(resources.resources.length, 2);
+    assert.equal(resources.resources.length, 10);
     for (const resource of resources.resources) assert.ok((await client.readResource({uri:resource.uri})).contents[0].text.length > 0);
   } finally { await client.close(); }
   assert.equal(stderr, '');

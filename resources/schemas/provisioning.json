@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "primaryBundleId": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "platform": {
+          "type": "string",
+          "enum": [
+            "IOS",
+            "MAC_OS",
+            "UNIVERSAL"
+          ]
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "capabilityType": {
+                "type": "string",
+                "enum": [
+                  "ICLOUD",
+                  "IN_APP_PURCHASE",
+                  "GAME_CENTER",
+                  "PUSH_NOTIFICATIONS",
+                  "WALLET",
+                  "INTER_APP_AUDIO",
+                  "MAPS",
+                  "ASSOCIATED_DOMAINS",
+                  "PERSONAL_VPN",
+                  "APP_GROUPS",
+                  "HEALTHKIT",
+                  "HOMEKIT",
+                  "WIRELESS_ACCESSORY_CONFIGURATION",
+                  "APPLE_PAY",
+                  "DATA_PROTECTION",
+                  "SIRIKIT",
+                  "NETWORK_EXTENSIONS",
+                  "MULTIPATH",
+                  "HOT_SPOT",
+                  "NFC_TAG_READING",
+                  "CLASSKIT",
+                  "AUTOFILL_CREDENTIAL_PROVIDER",
+                  "ACCESS_WIFI_INFORMATION",
+                  "NETWORK_CUSTOM_PROTOCOL",
+                  "COREMEDIA_HLS_LOW_LATENCY",
+                  "SYSTEM_EXTENSION_INSTALL",
+                  "USER_MANAGEMENT",
+                  "APPLE_ID_AUTH"
+                ]
+              },
+              "settings": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "options": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "enabled": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "enabled"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "options"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "capabilityType"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "name",
+        "platform",
+        "capabilities"
+      ],
+      "additionalProperties": false
+    },
+    "additionalBundleIds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "IOS",
+              "MAC_OS",
+              "UNIVERSAL"
+            ]
+          },
+          "capabilities": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "capabilityType": {
+                  "type": "string",
+                  "enum": [
+                    "ICLOUD",
+                    "IN_APP_PURCHASE",
+                    "GAME_CENTER",
+                    "PUSH_NOTIFICATIONS",
+                    "WALLET",
+                    "INTER_APP_AUDIO",
+                    "MAPS",
+                    "ASSOCIATED_DOMAINS",
+                    "PERSONAL_VPN",
+                    "APP_GROUPS",
+                    "HEALTHKIT",
+                    "HOMEKIT",
+                    "WIRELESS_ACCESSORY_CONFIGURATION",
+                    "APPLE_PAY",
+                    "DATA_PROTECTION",
+                    "SIRIKIT",
+                    "NETWORK_EXTENSIONS",
+                    "MULTIPATH",
+                    "HOT_SPOT",
+                    "NFC_TAG_READING",
+                    "CLASSKIT",
+                    "AUTOFILL_CREDENTIAL_PROVIDER",
+                    "ACCESS_WIFI_INFORMATION",
+                    "NETWORK_CUSTOM_PROTOCOL",
+                    "COREMEDIA_HLS_LOW_LATENCY",
+                    "SYSTEM_EXTENSION_INSTALL",
+                    "USER_MANAGEMENT",
+                    "APPLE_ID_AUTH"
+                  ]
+                },
+                "settings": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "options": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "string"
+                            },
+                            "enabled": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "key",
+                            "enabled"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "key",
+                      "options"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "capabilityType"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "identifier": {
+            "type": "string",
+            "maxLength": 255,
+            "pattern": "^[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)+$"
+          }
+        },
+        "required": [
+          "name",
+          "platform",
+          "capabilities",
+          "identifier"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "primaryBundleId"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "app": {
+      "type": "object",
+      "properties": {
+        "appStoreId": {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "bundleId": {
+          "type": "string",
+          "maxLength": 255,
+          "pattern": "^[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)+$"
+        },
+        "primaryLocale": {
+          "type": "string",
+          "enum": [
+            "en-US",
+            "de-DE",
+            "fr-FR",
+            "ja",
+            "pt-BR"
+          ]
+        },
+        "sku": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        }
+      },
+      "required": [
+        "bundleId",
+        "primaryLocale"
+      ],
+      "additionalProperties": false
+    },
+    "platforms": {
+      "minItems": 1,
+      "maxItems": 4,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "MAC_OS",
+          "IOS",
+          "TV_OS",
+          "VISION_OS"
+        ]
+      }
+    },
+    "localizations": {
+      "minItems": 1,
+      "maxItems": 5,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "en-US",
+          "de-DE",
+          "fr-FR",
+          "ja",
+          "pt-BR"
+        ]
+      }
+    },
+    "categories": {
+      "type": "object",
+      "properties": {
+        "primary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "secondary": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "primary"
+      ],
+      "additionalProperties": false
+    },
+    "defaults": {
+      "type": "object",
+      "properties": {
+        "privacyPolicyUrl": {
+          "type": "string",
+          "maxLength": 2048,
+          "format": "uri"
+        }
+      },
+      "required": [
+        "privacyPolicyUrl"
+      ],
+      "additionalProperties": false
+    },
+    "project": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "scheme": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "configuration": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "app",
+    "platforms",
+    "localizations"
+  ],
+  "additionalProperties": false
+}

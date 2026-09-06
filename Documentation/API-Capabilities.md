@@ -1,12 +1,13 @@
 # Capability and delivery status
 
-Phase 00 is merged. Phase 01 implements the stdio foundation and offline get_capabilities. The underlying authentication/transport is tested but no remote adapter is exposed. API inventory operations remain unavailable as tools and none is live-verified.
+Phases 00 and 01 are merged. Phase 02 adds offline validate_repository and generated schema resources alongside get_capabilities. The underlying authentication/transport is tested but no remote adapter is exposed. API inventory operations remain unavailable as tools and none is live-verified.
 
 | Phase | Capability | Status |
 | --- | --- | --- |
 | 00 | API provenance, endpoint contracts and unsupported boundaries | Merged PR #1 |
-| 01 | Stdio, credentials, bounded transport and package smoke | Implemented, PR validation |
-| 02–03 | Offline repository validation, discovery/export | Pending |
+| 01 | Stdio, credentials, bounded transport and package smoke | Merged PR #2 |
+| 02 | Scoped offline validation and generated schemas | Implemented, PR validation |
+| 03 | Discovery/export | Pending |
 | 04–06 | Reviewed plans, identifiers/capabilities, localized text | Pending |
 | 07–09 | Screenshot upload/sync, base price and availability | Pending |
 | 10–11 | Provisioning helpers, guarded submission | Pending |
