@@ -17,3 +17,5 @@ A second full selected-scope plan had zero operations and sent no writes. Privat
 Local validation: 122 tests passed, including independent locale families, all five locales, initial/update handling, shared-field selection, secret changes/redaction, structured redacted Apple errors, and both independent and Apple-initialized companion creation. Strict typecheck/build, schema drift and clean package installation/SDK handshake passed with 67 allowlisted package files.
 
 This proves live metadata synchronization only. Screenshot acceptance still requires genuine owner-supplied originals; pricing, broader signing helpers, submission and publication are separate phases.
+
+Subsequent review added regressions for historical replaced versions and execution-time changes to review secrets, literal contacts and notes. The corrected complete pipeline passes 126 tests; each late review-value change dispatches zero writes. Live locale acceptance above did not exercise or mutate review details.

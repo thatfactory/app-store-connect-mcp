@@ -44,7 +44,7 @@ async function fixture(t:test.TestContext){
   const engine=new PlanEngine([checkout],true);const env:Record<string,string|undefined>={};
   const plan=async(domains:('appInfo'|'versionMetadata'|'version'|'review')[]=['appInfo','versionMetadata'],selectedLocales:typeof locales[number][]=['de-DE','fr-FR','ja','pt-BR'],manageCategories=false)=>{
     const adapter=new MetadataAdapter({root,platform:'macOS',version:'1.0',locales:selectedLocales,domains,manageCategories},[checkout],api,()=> 'account',env);
-    const p=await engine.create(adapter);const approval:Approval={planId:p.planId as string,digest:p.digest as string,operationIds:(p.operations as Operation[]).map(op=>op.id),authorization:{confirmedByHost:true}};return {p,approval};
+    const p=await engine.create(adapter);const approval:Approval={planId:p.planId as string,digest:p.digest as string,operationIds:(p.operations as Operation[]).map(op=>op.id),authorization:{confirmedByHost:true}};return {p,approval,adapter};
   };
   return {checkout,root,prefix,state,calls,engine,plan,env,version,info};
 }
@@ -96,4 +96,24 @@ test('Apple-initialized empty companion is explicitly planned and patched withou
 });
 test('nonempty unexpected companion is never overwritten under a create approval',async t=>{
   const f=await fixture(t);f.state.autoCompanion=true;f.state.companionContent='Other editor content';const {approval}=await f.plan(['appInfo','versionMetadata'],['de-DE']);const result=await f.engine.apply(approval);assert.equal(result.state,'partial');assert.equal(result.operations[1]?.state,'failed');assert.equal(f.calls.filter(c=>c.method!=='GET').length,1);assert.equal(f.state.textLocales[1].attributes.description,'Other editor content');
+});
+
+test('historical replaced releases do not block the next version or its update notes',async t=>{
+  const f=await fixture(t);f.state.versions=[{id:'OLD',type:'appStoreVersions',attributes:{...f.version.attributes,versionString:'0.9',appVersionState:'REPLACED_WITH_NEW_VERSION'}}];f.state.textLocales=[];
+  await file(f.root,`${f.prefix}/localizations/de-DE/whats-new.txt`,'Reviewed update notes');const {approval}=await f.plan(['version','versionMetadata'],['de-DE']);assert.equal((await f.engine.apply(approval)).state,'complete');assert.equal((await f.plan(['version','versionMetadata'],['de-DE'])).p.noOp,true);
+});
+
+for(const source of ['environment','literal','notes'] as const)test(`late ${source} change cannot replace approved review values at dispatch`,async t=>{
+  const f=await fixture(t);const approved='APPROVED-PRIVATE-VALUE';const changed='UNAPPROVED-PRIVATE-VALUE';
+  if(source==='environment'){f.env.APPSTORE_REVIEW_DEMO_PASSWORD=approved;await file(f.root,`${f.prefix}/review.json`,{demoAccountPassword:{env:'APPSTORE_REVIEW_DEMO_PASSWORD'}});}
+  else if(source==='literal')await file(f.root,`${f.prefix}/review.json`,{contactFirstName:approved});
+  else await file(f.root,`${f.prefix}/review-notes.txt`,approved);
+  const {p,approval,adapter}=await f.plan(['review'],['en-US']);const capture=adapter.capture.bind(adapter);let captures=0;
+  adapter.capture=async signal=>{const snapshot=await capture(signal);if(++captures===3){
+    if(source==='environment')f.env.APPSTORE_REVIEW_DEMO_PASSWORD=changed;
+    else if(source==='literal')await file(f.root,`${f.prefix}/review.json`,{contactFirstName:changed});
+    else await file(f.root,`${f.prefix}/review-notes.txt`,changed);
+  }return snapshot;};
+  const journal=await f.engine.apply(approval);assert.equal(journal.state,'partial');assert.equal(journal.operations[0]?.state,'failed');assert.equal(journal.operations[0]?.code,'stalePlan');assert.equal(f.calls.filter(call=>call.method!=='GET').length,0);
+  const output=JSON.stringify({p,journal});assert.ok(!output.includes(approved));assert.ok(!output.includes(changed));
 });

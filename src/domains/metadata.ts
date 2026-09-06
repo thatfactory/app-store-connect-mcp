@@ -73,10 +73,10 @@ export class MetadataAdapter implements Adapter{
     if(version&&!editableVersionStates.has(state(version)))throw new AppStoreError('noneditableVersion','Selected version is not in a supported editable state.');
     if(!version){
       if(!selected.domains.includes('version'))throw new AppStoreError('versionNotFound','Version creation requires the explicitly selected shared version domain.');
-      if(versions.some(item=>item.attributes.platform===platform&&!['READY_FOR_DISTRIBUTION','READY_FOR_SALE'].includes(state(item))))throw new AppStoreError('versionCreationBlocked','Resolve the existing platform version before creating another.');
+      if(versions.some(item=>item.attributes.platform===platform&&!['READY_FOR_DISTRIBUTION','READY_FOR_SALE','REPLACED_WITH_NEW_VERSION'].includes(state(item))))throw new AppStoreError('versionCreationBlocked','Resolve the existing platform version before creating another.');
       if(!Object.hasOwn(local.manifest,'releaseType'))throw new AppStoreError('creationIncomplete','New versions require an explicit releaseType in version.json.');
     }
-    const hasPriorRelease=versions.some(item=>item.attributes.platform===platform&&item.id!==version?.id&&['READY_FOR_DISTRIBUTION','READY_FOR_SALE'].includes(state(item)));
+    const hasPriorRelease=versions.some(item=>item.attributes.platform===platform&&item.id!==version?.id&&['READY_FOR_DISTRIBUTION','READY_FOR_SALE','REPLACED_WITH_NEW_VERSION'].includes(state(item)));
     if(!hasPriorRelease&&Object.entries(intent).some(([key,value])=>key.startsWith('text:')&&Object.hasOwn(value.attributes,'whatsNew')))throw new AppStoreError('initialReleaseNotes','The initial release uses description text; omit whats-new.txt until an update to a released version.');
     const appInfos=await this.#list(`/v1/apps/${currentApp.id}/appInfos`,'appInfos',['state','appStoreState'],signal);
     if(appInfos.some(info=>!(knownAppInfoStates as readonly string[]).includes(state(info))))throw new AppStoreError('unknownAppInfoState','App information contains an unknown state.');
@@ -136,6 +136,10 @@ export class MetadataAdapter implements Adapter{
     }else{
       const family=operation.key.split(':')[0]!;type=family==='info'?'appInfoLocalizations':family==='text'?'appStoreVersionLocalizations':family==='review'?'appStoreReviewDetails':'appStoreVersions';
       const payload=family==='review'?pick((await this.#local(signal)).reviewValues,Object.keys(attributes)):attributes;
+      if(family==='review'){
+        const resolvedHashes=Object.fromEntries(Object.entries(payload).map(([key,value])=>[key,secretHash(value)]));
+        if(canonical(resolvedHashes)!==canonical(attributes))throw new AppStoreError('stalePlan','Review values changed after approval; no request was dispatched.');
+      }
       if(existing){if(typeof existing.id!=='string')throw new AppStoreError('invalidResponse','Missing resource identity.');url=`/v1/${type}/${existing.id}`;const {locale:_,platform:__,versionString:___,...patch}=payload;body={data:{type,id:existing.id,attributes:family==='version'?pick(payload,['copyright','releaseType']):patch}};}
       else{
         url=`/v1/${type}`;const relationship=family==='version'?'app':family==='info'?'appInfo':'appStoreVersion';const parent=object(current.remote[family==='version'?'app':family==='info'?'appInfo':'version']);const parentType=family==='version'?'apps':family==='info'?'appInfos':'appStoreVersions';if(typeof parent?.id!=='string')throw new AppStoreError('missingDependency','The localization parent must exist and be editable.');body={data:{type,attributes:payload,relationships:{[relationship]:{data:{type:parentType,id:parent.id}}}}};
