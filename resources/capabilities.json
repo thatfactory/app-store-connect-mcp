@@ -1,9 +1,13 @@
 {
   "schemaVersion": 1,
-  "stage": "repositoryValidation",
+  "stage": "discovery",
   "tools": [
     "get_capabilities",
-    "validate_repository"
+    "validate_repository",
+    "list_apps",
+    "get_app_store_state",
+    "export_app_store_state",
+    "prepare_app_record"
   ],
   "supportedLocales": [
     "en-US",
@@ -15,5 +19,9 @@
   "remoteWritesImplemented": false,
   "submissionImplemented": false,
   "genericAvailabilityMutation": "manualActionRequired",
-  "decodedScreenshotValidation": false
+  "decodedScreenshotValidation": false,
+  "liveVerified": [
+    "Headroom read-only discovery",
+    "Headroom redacted export"
+  ]
 }

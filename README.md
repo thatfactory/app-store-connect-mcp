@@ -11,7 +11,7 @@
 
 MCP server for managing Apple's App Store Connect. 📦
 
-**Status: offline validation implemented; not published.** A source build exposes `get_capabilities`, `validate_repository`, documentation, and eight generated JSON Schemas. Authentication and bounded Apple transport have automated tests; discovery and all mutations remain pending. The intended first-release features below are not yet available.
+**Status: discovery/export implemented; not published.** A source build exposes offline validation, app discovery, exact-version state reads, safe local export, manual app-record preparation, documentation and eight JSON Schemas. Headroom read-only discovery/export has been verified; all remote mutations remain pending. The intended first-release features below are not yet available.
 
 Keep App Store metadata and localized screenshot sources beside your application code. Let an MCP-capable agent inspect the account, validate the repository, show a concrete change plan, and apply the approved changes through Apple's documented APIs.
 
@@ -124,3 +124,14 @@ Start with `--allowed-root /absolute/path/to/checkout`, then call `validate_repo
 The initial locale registry covers en-US, de-DE, fr-FR, ja and pt-BR. Other Apple-supported locales require registry expansion. Validation preserves omission/null/empty values; it does not determine creation completeness or release readiness. JSON schema checks, paths, text budgets and screenshot manifests are implemented; decoded image validation remains Phase 07. Review environment references are field-allowlisted and resolved values never appear in results. Character checks use conservative UTF-16 units and report code points/graphemes/UTF-8 bytes for prose. No URLs are fetched.
 
 The validator bounds each text/JSON file to 1 MiB, each referenced asset to 32 MiB, total read bytes to 64 MiB and files to 2000 per request. Results include up to 200 diagnostics and explicitly report truncation. Use narrower selectors for larger roots. The [synthetic example](examples/minimal/README.md) validates structurally but is not a ready-to-submit listing. Run `npm run schemas:check` to verify published schemas match the runtime validators.
+
+## Read and export tools
+
+| Tool | Behavior |
+| --- | --- |
+| `list_apps` | List apps, optionally filtered by exact bundle ID; bounded displayed results. |
+| `get_app_store_state` | Require appStoreId/bundleId/platform; omit version to see candidates, then select an exact version. |
+| `export_app_store_state` | Same target plus an absolute fresh `destination` beneath an approved existing parent. Never overwrites; writes local files only. |
+| `prepare_app_record` | Confirm ID/bundle agreement or return manual bootstrap fields and missing owner values. Never POST /apps. |
+
+Exports include metadata and a separate inventory/English fingerprint. Review contacts/logins become environment references; freeform review notes are withheld for owner inspection. No signed upload URLs or CDN downloads are exported. Null prose fields are recorded as unmanaged in inventory because plain text has no null representation. Unsupported locale/release configuration stops export instead of substituting defaults. Partial local exports remain visible for inspection after failure. See [read-only acceptance evidence](Documentation/Acceptance-Phase-03.md).
