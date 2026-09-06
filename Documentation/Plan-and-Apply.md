@@ -1,6 +1,6 @@
 # Plans, authorization and recovery
 
-The shared plan engine is implemented in Phase 04. Domain adapters follow in later phases. This build exposes `apply_plan` and `get_operation_status`, but does not expose arbitrary operation creation or an Apple write adapter. No endpoint, HTTP body or editable plan-file path can be supplied to apply.
+The shared plan engine is implemented in Phase 04. The first domain adapter now handles bounded provisioning. This build exposes `apply_plan` and `get_operation_status`, and accepts plans from the provisioning domain tool. It does not expose arbitrary operation creation. No endpoint, HTTP body or editable plan-file path can be supplied to apply.
 
 A trusted domain adapter captures canonical repository identity, selected domains/locales, input and asset hashes, a process-keyed secret fingerprint, credential context, target identity, rule version and relevant remote values. It proposes only managed changes. Omitted fields remain unmanaged; an explicit empty value differs from omission. Operations carry deterministic IDs, scope, before/after values and dependencies. The engine orders dependencies and rejects malformed or oversized operation sets.
 

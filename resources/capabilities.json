@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "stage": "plan-engine",
+  "stage": "provisioning",
   "tools": [
     "get_capabilities",
     "validate_repository",
@@ -9,7 +9,10 @@
     "export_app_store_state",
     "prepare_app_record",
     "apply_plan",
-    "get_operation_status"
+    "get_operation_status",
+    "get_bundle_id_state",
+    "inspect_xcode_project",
+    "plan_provisioning_changes"
   ],
   "supportedLocales": [
     "en-US",
@@ -18,7 +21,7 @@
     "ja",
     "pt-BR"
   ],
-  "remoteWritesImplemented": false,
+  "remoteWritesImplemented": true,
   "submissionImplemented": false,
   "genericAvailabilityMutation": "manualActionRequired",
   "decodedScreenshotValidation": false,
@@ -26,5 +29,12 @@
     "Headroom read-only discovery",
     "Headroom redacted export"
   ],
-  "planEngineImplemented": true
+  "planEngineImplemented": true,
+  "provisioningCapabilities": [
+    "PUSH_NOTIFICATIONS",
+    "GAME_CENTER",
+    "ASSOCIATED_DOMAINS",
+    "IN_APP_PURCHASE",
+    "DATA_PROTECTION (IOS, explicit settings)"
+  ]
 }

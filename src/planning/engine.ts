@@ -59,7 +59,7 @@ export class PlanEngine {
   }
   #remoteIds(record:RecordState,operation:Operation,snapshot:Snapshot):string[]{
     const ids=record.adapter.remoteIds?.(operation,snapshot)??[];
-    if(ids.length>100||ids.some(id=>!/^[A-Za-z0-9-]{1,128}$/.test(id)))throw new AppStoreError('invalidReceipt','Adapter returned invalid remote identities.');
+    if(ids.length>100||ids.some(id=>!/^[A-Za-z0-9_-]{1,128}$/.test(id)))throw new AppStoreError('invalidReceipt','Adapter returned invalid remote identities.');
     return ids;
   }
   #unrelatedChange(before:Snapshot,after:Snapshot,operation:Operation):boolean{
