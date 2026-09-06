@@ -9,3 +9,5 @@ CI and nightly match the sibling workflow layout and macOS runner, with Node 24 
 Initial PR review required a correction to availability semantics: generic territory writes are now explicitly disabled/conditional with a manual fallback; pre-order writes are outside v1. Local documentation links are checked automatically.
 
 Phase 00 merged via PR #1 at 9fb8183 after exact-head Relay approval and green CI. Phase 01 candidate implements strict ESM package, lazy team-key JWT, safe bounded transport, offline stdio capabilities and package validation. 40 checks plus clean production tarball install/handshake passed locally; no live Apple calls. Publication workflow remains Phase 12.
+
+Phase 01 merged through PR #2 after exact-head Relay approval and green Node24 CI. Phase 02 candidate adds strict schemas, secure file reading, scoped offline validation and process-keyed secret comparison. Generated schema drift checks, 54 tests and clean package validation pass; decoded image validation and creation/readiness checks remain later phases.

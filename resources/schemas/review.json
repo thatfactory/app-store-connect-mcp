@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "contactFirstName": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        {
+          "type": "object",
+          "properties": {
+            "env": {
+              "type": "string",
+              "const": "APPSTORE_REVIEW_FIRST_NAME"
+            }
+          },
+          "required": [
+            "env"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "contactLastName": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        {
+          "type": "object",
+          "properties": {
+            "env": {
+              "type": "string",
+              "const": "APPSTORE_REVIEW_LAST_NAME"
+            }
+          },
+          "required": [
+            "env"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "contactPhone": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        {
+          "type": "object",
+          "properties": {
+            "env": {
+              "type": "string",
+              "const": "APPSTORE_REVIEW_PHONE"
+            }
+          },
+          "required": [
+            "env"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "contactEmail": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        {
+          "type": "object",
+          "properties": {
+            "env": {
+              "type": "string",
+              "const": "APPSTORE_REVIEW_EMAIL"
+            }
+          },
+          "required": [
+            "env"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "demoAccountRequired": {
+      "type": "boolean"
+    },
+    "demoAccountName": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        {
+          "type": "object",
+          "properties": {
+            "env": {
+              "type": "string",
+              "const": "APPSTORE_REVIEW_DEMO_USERNAME"
+            }
+          },
+          "required": [
+            "env"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "demoAccountPassword": {
+      "type": "object",
+      "properties": {
+        "env": {
+          "type": "string",
+          "const": "APPSTORE_REVIEW_DEMO_PASSWORD"
+        }
+      },
+      "required": [
+        "env"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

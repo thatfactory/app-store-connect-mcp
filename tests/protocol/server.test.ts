@@ -17,10 +17,10 @@ test('SDK initialization, tool validation and packaged resources need no Apple c
   const client=new Client({name:'test',version:'1'});
   try {
     await client.connect(transport);
-    assert.deepEqual((await client.listTools()).tools.map(tool=>tool.name),['get_capabilities']);
+    assert.deepEqual((await client.listTools()).tools.map(tool=>tool.name),['get_capabilities','validate_repository']);
     assert.equal((await client.callTool({name:'get_capabilities',arguments:{}})).isError,undefined);
     assert.equal((await client.callTool({name:'get_capabilities',arguments:{unexpected:'reject'}})).isError,true);
-    const resources=await client.listResources();assert.equal(resources.resources.length,2);
+    const resources=await client.listResources();assert.equal(resources.resources.length,10);
     for(const resource of resources.resources) assert.ok((await client.readResource({uri:resource.uri})).contents.length);
   } finally {await client.close();}
   assert.equal(errors,'');

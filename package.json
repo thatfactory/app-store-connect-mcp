@@ -5,10 +5,20 @@
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
-  "bin": {"app-store-connect-mcp": "dist/index.js"},
-  "files": ["dist", "resources"],
-  "engines": {"node": ">=24.0.0"},
-  "repository": {"type": "git", "url": "https://github.com/thatfactory/app-store-connect-mcp.git"},
+  "bin": {
+    "app-store-connect-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "resources"
+  ],
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thatfactory/app-store-connect-mcp.git"
+  },
   "scripts": {
     "clean": "node scripts/clean.mjs",
     "build": "tsc -p tsconfig.json",
@@ -16,8 +26,16 @@
     "test": "node --import tsx --test tests/**/*.test.ts tests/contracts/*.test.mjs",
     "prepack": "npm run clean && npm run build",
     "smoke": "node scripts/pack-smoke.mjs",
-    "check": "npm run typecheck && npm test && npm run build && npm run smoke"
+    "check": "npm run schemas:check && npm run typecheck && npm test && npm run build && npm run smoke",
+    "schemas:check": "node --import tsx scripts/generate-schemas.ts --check"
   },
-  "dependencies": {"@modelcontextprotocol/sdk": "1.30.0", "zod": "4.5.4"},
-  "devDependencies": {"@types/node": "^24.0.0", "tsx": "4.23.13", "typescript": "7.0.2"}
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "4.23.13",
+    "typescript": "7.0.2"
+  }
 }

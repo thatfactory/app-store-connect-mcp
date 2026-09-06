@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, rmSync, statSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, rmSync, statSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import assert from 'node:assert/strict';
@@ -15,6 +15,9 @@ try {
   if (process.platform !== 'win32') assert.ok(statSync(executable).mode & 0o111);
   assert.match(execFileSync(process.execPath,[executable,'--help'],{cwd:folder,encoding:'utf8'}),/stdio/);
   assert.equal(execFileSync(process.execPath,[executable,'--version'],{cwd:folder,encoding:'utf8'}).trim(),'1.0.0');
-  await protocolSmoke(process.execPath,[executable],folder);
+  const appRoot = path.join(folder, 'AppStore');
+  mkdirSync(appRoot);
+  writeFileSync(path.join(appRoot, 'app.json'), JSON.stringify({schemaVersion:1,app:{bundleId:'com.example.synthetic',primaryLocale:'en-US'},platforms:['MAC_OS'],localizations:['en-US']}));
+  await protocolSmoke(process.execPath,[executable,'--allowed-root',folder],folder,appRoot);
   console.log(`Packed artifact: ${packed.files.length} allowlisted files; clean production install, help/version, MCP tools/resources passed.`);
 } finally { rmSync(folder,{recursive:true,force:true}); }

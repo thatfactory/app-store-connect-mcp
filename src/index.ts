@@ -6,7 +6,7 @@ import { publicError } from './errors.js';
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   if (args.length === 1 && args[0] === '--help') {
-    process.stdout.write('app-store-connect-mcp [--allowed-root /absolute/path] [--allow-writes] [--allow-submission]\nLocal stdio MCP. Foundation: offline capabilities only; no Apple writes implemented.\n');
+    process.stdout.write('app-store-connect-mcp [--allowed-root /absolute/path] [--allow-writes] [--allow-submission]\nLocal stdio MCP. Offline capabilities and repository validation; no Apple writes implemented.\n');
     return;
   }
   if (args.length === 1 && args[0] === '--version') { process.stdout.write(`${VERSION}\n`); return; }
