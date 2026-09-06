@@ -19,6 +19,10 @@ export async function protocolSmoke(command, args, cwd, appRoot) {
       const validation = await client.callTool({name:'validate_repository',arguments:{root:appRoot,domains:['appInfo']}});
       assert.equal(validation.isError, undefined);
       assert.equal(validation.structuredContent.valid, true);
+      if(process.platform==='darwin') {
+        const images=await client.callTool({name:'validate_repository',arguments:{root:appRoot,domains:['screenshots'],platform:'macOS',version:'1.0'}});
+        assert.equal(images.isError,undefined);assert.equal(images.structuredContent.valid,true,JSON.stringify(images.structuredContent));
+      }
     }
     const resources = await client.listResources();
     assert.equal(resources.resources.length, 10);

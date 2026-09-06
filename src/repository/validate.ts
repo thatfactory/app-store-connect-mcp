@@ -1,3 +1,4 @@
+import {validateImage,type ImageIdentity} from '../screenshots/validate.js';
 import { createHmac, randomBytes } from 'node:crypto';
 import { z } from 'zod';
 import { AppStoreError } from '../errors.js';
@@ -5,7 +6,7 @@ import { RepositoryFiles, safeRelative } from './files.js';
 import { parseJson } from './json.js';
 import { schemas, domains, platforms, reviewEnvironment, selectionSchema, type Selection, type AppManifest } from './schemas.js';
 export interface Diagnostic {path:string;locale?:string;field:string;rule:string;severity:'error'|'advisory';message:string}
-export interface ValidatedRepository {valid:boolean;diagnostics:Diagnostic[];hashes:Record<string,string>;desired:Record<string,unknown>;secretFingerprint:string;measurements:Record<string,{codePoints:number;utf16Units:number;graphemes:number;utf8Bytes:number}>}
+export interface ValidatedRepository {images:Record<string,ImageIdentity>;valid:boolean;diagnostics:Diagnostic[];hashes:Record<string,string>;desired:Record<string,unknown>;secretFingerprint:string;measurements:Record<string,{codePoints:number;utf16Units:number;graphemes:number;utf8Bytes:number}>}
 const secretKey=randomBytes(32);
 const textFields={'description.txt':['description',4000,'characters'],'keywords.txt':['keywords',100,'bytes'],'promotional-text.txt':['promotionalText',170,'characters'],'whats-new.txt':['whatsNew',4000,'characters']} as const;
 export async function validateRepository(selection:Selection,allowedRoots:readonly string[],environment:Readonly<Record<string,string|undefined>>=process.env,signal?:AbortSignal):Promise<ValidatedRepository>{
@@ -14,6 +15,7 @@ export async function validateRepository(selection:Selection,allowedRoots:readon
   if(!parsedSelection.success)throw new AppStoreError('invalidSelection','Use supported domains, locales and explicit version selectors.');
   selection=parsedSelection.data;
   const files=await RepositoryFiles.create(selection.root,allowedRoots,signal);
+  const images:Record<string,ImageIdentity>={};
   const diagnostics:Diagnostic[]=[];const desired:Record<string,unknown>={};const measurements:ValidatedRepository['measurements']={};
   const selected=new Set(selection.domains??domains);const secrets:Record<string,string>={};
   const report=(file:string,field:string,rule:string,message:string,severity:'error'|'advisory'='error',locale?:string):void=>{diagnostics.push({path:file,field,rule,severity,message,...(locale?{locale}:{})});};
@@ -93,6 +95,7 @@ export async function validateRepository(selection:Selection,allowedRoots:readon
                 if(!safeRelative(reference)){report(file,`sets.${display}`,'unsafePath','Screenshot paths must remain within AppStore.');continue;}
                 if(!/\.(png|jpe?g)$/i.test(reference)){report(reference,'','imageFormat','Screenshot sources must be PNG or JPEG.');continue;}
                 const bytes=await read(reference,true,32*1024*1024);if(bytes?.subarray(0,128).toString().startsWith('version https://git-lfs.github.com/spec/v1'))report(reference,'','gitLfsPointer','Materialize the original image bytes before validation.');
+                else if(bytes)try{images[reference]=await validateImage(bytes,reference,signal);}catch(error){if(signal?.aborted)throw new AppStoreError('cancelled','Screenshot validation cancelled.');report(reference,'',error instanceof AppStoreError?error.code:'invalidImage',error instanceof AppStoreError?error.message:'Screenshot decoding failed.');}
                 if(!reference.includes(`/${locale}/`))report(file,`sets.${display}`,'sharedLocaleAsset','Review the explicit shared source; no language fallback was inferred.','advisory',locale);
               }
             }
@@ -104,6 +107,6 @@ export async function validateRepository(selection:Selection,allowedRoots:readon
   }
   if(signal?.aborted)throw new AppStoreError('cancelled','Repository validation cancelled.');
   diagnostics.sort((a,b)=>[a.path,a.field,a.rule].join('\0').localeCompare([b.path,b.field,b.rule].join('\0'),'en'));
-  return {valid:!diagnostics.some(item=>item.severity==='error'),diagnostics,hashes:files.hashes,desired,secretFingerprint:createHmac('sha256',secretKey).update(JSON.stringify(Object.entries(secrets).sort())).digest('hex'),measurements};
+  return {images,valid:!diagnostics.some(item=>item.severity==='error'),diagnostics,hashes:files.hashes,desired,secretFingerprint:createHmac('sha256',secretKey).update(JSON.stringify(Object.entries(secrets).sort())).digest('hex'),measurements};
 }
 export function appManifest(result:ValidatedRepository):AppManifest|undefined{return result.desired['app.json'] as AppManifest|undefined;}

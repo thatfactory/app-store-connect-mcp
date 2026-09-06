@@ -11,7 +11,7 @@
 
 MCP server for managing Apple's App Store Connect. 📦
 
-**Status: discovery, export, metadata and bounded provisioning implemented; not published.** A source build exposes offline validation, app discovery, exact-version state reads, safe local export, manual app-record preparation, documentation and eight JSON Schemas. Headroom discovery/export and four-locale metadata synchronization have been verified; selected localized text, shared metadata, bundle registration and a documented capability subset now use approved plans. The intended first-release features below are not yet available.
+**Status: discovery, export, metadata and bounded provisioning and decoded screenshot validation implemented; not published.** A source build exposes offline validation, app discovery, exact-version state reads, safe local export, manual app-record preparation, documentation and eight JSON Schemas. Headroom discovery/export and four-locale metadata synchronization have been verified; selected localized text, shared metadata, bundle registration and a documented capability subset now use approved plans. The intended first-release features below are not yet available.
 
 Keep App Store metadata and localized screenshot sources beside your application code. Let an MCP-capable agent inspect the account, validate the repository, show a concrete change plan, and apply the approved changes through Apple's documented APIs.
 
@@ -143,3 +143,5 @@ The shared plan engine is implemented, with immutable process-bound plans, exact
 [Metadata synchronization](Documentation/Metadata-Sync.md) explains independent locale families, explicit shared domains and secret-safe review details.
 
 [Headroom metadata acceptance](Documentation/Acceptance-Phase-06.md) records verified readback, unchanged English and a repeated no-op plan.
+
+Screenshot validation currently requires macOS with an installed Apple Swift toolchain and ImageIO. Other MCP features remain available on supported Node platforms. It decodes original RGB PNG/JPEG bytes without modifying them and rejects alpha, orientation transforms, corruption and unsupported dimensions. The internal transfer lifecycle is implemented; the approved screenshot planning tool follows in Phase 08. See [screenshot transfer boundaries](Documentation/Screenshot-Transfer.md).
