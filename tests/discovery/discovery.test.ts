@@ -79,3 +79,25 @@ test('export refuses overwrite/escape and round-trips normalized prose without e
     assert.ok(output.englishFingerprint);assert.ok(!output.files.some(file=>file.endsWith('.png')));
   }finally{await rm(parent,{recursive:true,force:true});}
 });
+test('unresolved in-review AppInfo never falls back to unrelated published metadata',async()=>{
+  const state=await fixture({'/v1/apps/123/appStoreVersions':{data:[{...version,attributes:{...version.attributes,appVersionState:'IN_REVIEW'}}]}}).reader.state(target);
+  assert.equal(state.appInfo,undefined);assert.ok(state.unavailable.length);assert.throws(()=>exportContent(state),/resolve app information/);
+});
+test('metadata-rejected version with an unrecognized AppInfo state cannot export its released sibling',async()=>{
+  const state=await fixture({'/v1/apps/123/appStoreVersions':{data:[{...version,attributes:{...version.attributes,appVersionState:'METADATA_REJECTED'}}]},'/v1/apps/123/appInfos':{data:[released,{id:'info-rejected',type:'appInfos',attributes:{state:'METADATA_REJECTED'}}]}}).reader.state(target);
+  assert.equal(state.appInfo,undefined);assert.equal(state.editable,false);assert.throws(()=>exportContent(state),/resolve app information/);
+});
+test('metadata-rejected version selects its current REJECTED AppInfo using independent state rules',async()=>{
+  const state=await fixture({'/v1/apps/123/appStoreVersions':{data:[{...version,attributes:{...version.attributes,appVersionState:'METADATA_REJECTED'}}]},'/v1/apps/123/appInfos':{data:[released,{...editable,attributes:{state:'REJECTED',appStoreState:'METADATA_REJECTED'}}]}}).reader.state(target);
+  assert.equal(state.appInfo?.id,'info-edit');assert.equal(state.editable,true);assert.ok(exportContent(state)['info/en-US.json']?.includes('Synthetic'));
+});
+test('editable version without editable AppInfo never exports old published text',async()=>{
+  const state=await fixture({'/v1/apps/123/appInfos':{data:[released]}}).reader.state(target);assert.equal(state.appInfo,undefined);assert.throws(()=>exportContent(state),/resolve app information/);
+});
+test('AppInfo editability is a subset of its independently pinned enum',async()=>{
+  const {knownAppInfoStates,editableAppInfoStates,editableVersionStates}=await import('../../src/api/resources/states.js');
+  const pinned=JSON.parse(await readFile('contracts/apple-openapi.json','utf8'));
+  assert.deepEqual(knownAppInfoStates,pinned.components.schemas.AppInfo.properties.attributes.properties.state.enum);
+  for(const state of editableAppInfoStates)assert.ok((knownAppInfoStates as readonly string[]).includes(state));
+  assert.equal(editableAppInfoStates.has('METADATA_REJECTED'),false);assert.equal(editableVersionStates.has('METADATA_REJECTED'),true);
+});

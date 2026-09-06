@@ -1,5 +1,6 @@
 import { createHash, createHmac, randomBytes } from 'node:crypto';
 import { z } from 'zod';
+import { knownAppInfoStates, editableAppInfoStates as editableInfo, editableVersionStates as editableVersion } from './states.js';
 import { AppStoreError } from '../../errors.js';
 import type { ApiClient, ApiDocument } from '../client.js';
 export type Attributes=Record<string,string|number|boolean|null>;
@@ -33,8 +34,6 @@ export function resource(raw:unknown,type:string,fields:readonly string[]):Resou
   return {id:value.id,type,attributes};
 }
 export function fingerprint(value:unknown):string{return createHash('sha256').update(JSON.stringify(value)).digest('hex');}
-const editableInfo=new Set(['PREPARE_FOR_SUBMISSION','DEVELOPER_REJECTED','REJECTED']);
-const editableVersion=new Set([...editableInfo,'METADATA_REJECTED']);
 const observedState=(item:Resource):string=>String(item.attributes.state??item.attributes.appVersionState??item.attributes.appStoreState??'UNKNOWN');
 export class Discovery {
   constructor(private readonly api:ApiClient,private readonly identity:()=>string){}
@@ -63,14 +62,10 @@ export class Discovery {
     if(candidates.length!==1)throw new AppStoreError(candidates.length?'ambiguousVersion':'versionNotFound','Select an existing unique platform/version explicitly.');
     const version=candidates[0]!;base.version=version;
     const versionState=observedState(version);
-    const infoCandidates=appInfos.filter(info=>editableVersion.has(versionState)?editableInfo.has(observedState(info)):observedState(info)===versionState);
+    const infoCandidates=appInfos.filter(info=>(knownAppInfoStates as readonly string[]).includes(observedState(info))&&(editableVersion.has(versionState)?editableInfo.has(observedState(info)):observedState(info)===versionState));
     if(infoCandidates.length>1)throw new AppStoreError('ambiguousAppInfo','Multiple applicable app-information records require explicit resolution.');
     if(infoCandidates.length===1)base.appInfo=infoCandidates[0]!;
-    else {
-      const released=appInfos.filter(info=>observedState(info)==='READY_FOR_DISTRIBUTION'||observedState(info)==='READY_FOR_SALE');
-      if(released.length===1)base.appInfo=released[0]!;
-      else base.unavailable.push('No unique editable or released app-information record.');
-    }
+    else base.unavailable.push('No unique app-information record compatible with the selected version state.');
     base.editable=editableVersion.has(observedState(version))&&!!base.appInfo&&editableInfo.has(observedState(base.appInfo));
     if(base.appInfo)base.appInfoLocalizations=await this.#list(`/v1/appInfos/${base.appInfo.id}/appInfoLocalizations`,'appInfoLocalizations',infoLocalizationFields,signal);
     base.versionLocalizations=await this.#list(`/v1/appStoreVersions/${version.id}/appStoreVersionLocalizations`,'appStoreVersionLocalizations',localizationFields,signal);

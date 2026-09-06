@@ -23,7 +23,7 @@ Reproduce by downloading the source URL in provenance, extracting `openapi.oas (
 
 ## State, permissions and failures
 
-Schema enums list possible states; they do not grant edit permission. Initial conservative metadata write allowlist is PREPARE_FOR_SUBMISSION, DEVELOPER_REJECTED, REJECTED and METADATA_REJECTED, subject to resource-specific Apple restrictions. No writes to released/processing/in-review versions. AppInfo selection must examine its state independently. An operation outside a verified resource/state combination is conditional and must fail closed until its phase adds evidence.
+Schema enums list possible states; they do not grant edit permission. Initial conservative version metadata write allowlist is PREPARE_FOR_SUBMISSION, DEVELOPER_REJECTED, REJECTED and METADATA_REJECTED, subject to resource-specific Apple restrictions. AppInfo has a distinct state enum: its conservative editable states are PREPARE_FOR_SUBMISSION, DEVELOPER_REJECTED and REJECTED. The pinned modern AppInfo state enum does not contain METADATA_REJECTED; do not copy version states into it. An unknown or unavailable applicable AppInfo blocks export instead of falling back to a released sibling. No writes to released/processing/in-review versions. AppInfo selection must examine its state independently. An operation outside a verified resource/state combination is conditional and must fail closed until its phase adds evidence.
 
 Team API key roles and app access constrain each operation. Reads and writes must surface 403 as permission failure, not absent resources. No automatic role changes. Apple is authoritative on managed capabilities, certificate quotas, pricing agreements and review eligibility; a schema-valid body is insufficient evidence of permission.
 
