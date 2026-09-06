@@ -21,6 +21,7 @@ test('managed diff preserves omission, explicit clearing, deterministic IDs and 
   assert.deepEqual(diffManaged('a',{name:'same'},{name:'same',other:'keep'},'x'),[]);
   const ops=diffManaged('a',{name:''},{name:'old'},'x');assert.equal(ops[0]?.after,'');
   assert.equal(ops[0]?.id,diffManaged('a',{name:'new'},{},'x')[0]?.id);
+  assert.notEqual(ops[0]?.id,diffManaged('a',{name:'new'},{},'other-scope')[0]?.id);
 });
 test('approved updates are verified, journaled with IDs, and second plan is no-op',async t=>{
   const f=await fixture(t);const {p,approval}=await f.create();const journal=await f.engine.apply(approval);

@@ -25,7 +25,7 @@ const localizationFields=['locale','description','keywords','supportUrl','market
 export function resource(raw:unknown,type:string,fields:readonly string[]):Resource {
   if(!raw||typeof raw!=='object')throw new AppStoreError('invalidResponse','Expected an Apple resource.');
   const value=raw as RawResource;
-  if(value.type!==type||typeof value.id!=='string'||!/^[A-Za-z0-9-]{1,128}$/.test(value.id))throw new AppStoreError('invalidResponse','Apple resource type or identity is invalid.');
+  if(value.type!==type||typeof value.id!=='string'||!/^[A-Za-z0-9_-]{1,128}$/.test(value.id))throw new AppStoreError('invalidResponse','Apple resource type or identity is invalid.');
   const attributes:Attributes={};
   if(value.attributes!==undefined){
     if(!value.attributes||typeof value.attributes!=='object'||Array.isArray(value.attributes))throw new AppStoreError('invalidResponse','Apple attributes are malformed.');

@@ -42,7 +42,7 @@ export function diffManaged(domain:string,desired:Record<string,Json>,remote:Rec
   return Object.keys(desired).sort().flatMap(key=>{
     const before=remote[key];const after=desired[key]!;
     if(Object.hasOwn(remote,key)&&canonical(before)===canonical(after))return [];
-    const id=`op-${createHash('sha256').update(`${domain}:${key}`).digest('hex').slice(0,24)}`;
+    const id=`op-${createHash('sha256').update(canonical([domain,scope,key])).digest('hex').slice(0,24)}`;
     return [{id,domain,kind:Object.hasOwn(remote,key)?'update':'create',key,scope,...(before===undefined?{}:{before}),after,dependencies:[],affects:[key],sensitive}];
   });
 }

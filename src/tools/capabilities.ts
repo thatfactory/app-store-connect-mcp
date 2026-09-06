@@ -8,7 +8,7 @@ export function registerCapabilities(server: McpServer, config: Configuration): 
     annotations: {readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false},
   }, async (_args, extra) => {
     if (extra.signal.aborted) return {isError: true, content: [{type: 'text', text: 'Request cancelled.'}]};
-    const result = {schemaVersion: 1, stage: 'plan-engine', tools: ['get_capabilities', 'validate_repository', 'list_apps', 'get_app_store_state', 'export_app_store_state', 'prepare_app_record', 'apply_plan', 'get_operation_status'], remoteWritesImplemented: false,
+    const result = {schemaVersion: 1, stage: 'provisioning', tools: ['get_capabilities', 'validate_repository', 'list_apps', 'get_app_store_state', 'export_app_store_state', 'prepare_app_record', 'apply_plan', 'get_operation_status','get_bundle_id_state','inspect_xcode_project','plan_provisioning_changes'], remoteWritesImplemented: true,
       submissionImplemented: false, allowedRootCount: config.allowedRoots.length, allowWrites: config.allowWrites, allowSubmission: config.allowSubmission};
     return {content: [{type: 'text', text: JSON.stringify(result)}], structuredContent: result};
   });
