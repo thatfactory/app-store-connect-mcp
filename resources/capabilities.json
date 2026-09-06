@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "stage": "metadata",
+  "stage": "screenshot-transfer",
   "tools": [
     "get_capabilities",
     "validate_repository",
@@ -25,7 +25,7 @@
   "remoteWritesImplemented": true,
   "submissionImplemented": false,
   "genericAvailabilityMutation": "manualActionRequired",
-  "decodedScreenshotValidation": false,
+  "decodedScreenshotValidation": "macOS with Apple Swift/ImageIO",
   "liveVerified": [
     "Headroom read-only discovery",
     "Headroom redacted export",
@@ -46,5 +46,6 @@
     "version",
     "review",
     "categories (explicit manageCategories)"
-  ]
+  ],
+  "screenshotTransfer": "internal lifecycle implemented; approved screenshot planning follows in Phase 08"
 }

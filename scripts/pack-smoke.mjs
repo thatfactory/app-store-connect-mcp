@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, rmSync, statSync, mkdirSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, rmSync, statSync, mkdirSync, copyFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import assert from 'node:assert/strict';
@@ -18,6 +18,14 @@ try {
   const appRoot = path.join(folder, 'AppStore');
   mkdirSync(appRoot);
   writeFileSync(path.join(appRoot, 'app.json'), JSON.stringify({schemaVersion:1,app:{bundleId:'com.example.synthetic',primaryLocale:'en-US'},platforms:['MAC_OS'],localizations:['en-US']}));
+  if(process.platform==='darwin') {
+    const version=path.join(appRoot,'versions/macOS/1.0');
+    mkdirSync(path.join(version,'localizations/en-US'),{recursive:true});
+    mkdirSync(path.join(appRoot,'assets'));
+    copyFileSync(new URL('../tests/screenshots/rgb.png',import.meta.url),path.join(appRoot,'assets/screen.png'));
+    writeFileSync(path.join(version,'version.json'),JSON.stringify({schemaVersion:1,platform:'MAC_OS',versionString:'1.0'}));
+    writeFileSync(path.join(version,'localizations/en-US/screenshots.json'),JSON.stringify({mode:'merge',sets:{APP_DESKTOP:['assets/screen.png']}}));
+  }
   await protocolSmoke(process.execPath,[executable,'--allowed-root',folder],folder,appRoot);
   console.log(`Packed artifact: ${packed.files.length} allowlisted files; clean production install, help/version, MCP tools/resources passed.`);
 } finally { rmSync(folder,{recursive:true,force:true}); }
