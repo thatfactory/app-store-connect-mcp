@@ -11,7 +11,7 @@
 
 MCP server for managing Apple's App Store Connect. 📦
 
-**Status: planned; implementation has not shipped.** The interfaces below are the first-release contract. They are not a claim that this npm package is already available.
+**Status: foundation implemented; not published.** A source build exposes only offline `get_capabilities` and packaged documentation resources. Authentication and bounded Apple transport have automated tests; discovery and all mutations remain pending. The intended first-release features below are not yet available.
 
 Keep App Store metadata and localized screenshot sources beside your application code. Let an MCP-capable agent inspect the account, validate the repository, show a concrete change plan, and apply the approved changes through Apple's documented APIs.
 
@@ -109,7 +109,7 @@ See [the format specification](Documentation/AppStore-Format.md) for defaults, o
 
 ## Development and documentation
 
-The intended development commands are `npm ci`, `npm test`, `npm run typecheck`, `npm run build`, and `npm pack --dry-run`. Phase 01 creates them.
+Run `npm ci` and `npm run check` for strict type checking, tests, build, and a clean packed-package MCP smoke test. Run `node dist/index.js --help` for local launch options. CI and nightly execute the same checks on Node 24 without Apple credentials.
 
 [Product](Documentation/Product.md) explains the longer-term vision. [Architecture](Documentation/Architecture.md) defines internal boundaries. [Execution plan](Documentation/ExecutionPlan/README.md) breaks implementation into reviewable changes. [Sources](Documentation/Sources.md) records the research baseline.
 
