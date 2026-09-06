@@ -1,0 +1,13 @@
+{
+  "schema": "CertificateCreateRequest",
+  "valid": {
+    "data": {
+      "attributes": {
+        "csrContent": "synthetic-fixture",
+        "certificateType": "APPLE_PAY"
+      },
+      "type": "certificates"
+    }
+  },
+  "invalid": {}
+}

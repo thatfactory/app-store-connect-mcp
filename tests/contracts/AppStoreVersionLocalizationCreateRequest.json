@@ -1,0 +1,20 @@
+{
+  "schema": "AppStoreVersionLocalizationCreateRequest",
+  "valid": {
+    "data": {
+      "relationships": {
+        "appStoreVersion": {
+          "data": {
+            "id": "synthetic-fixture",
+            "type": "appStoreVersions"
+          }
+        }
+      },
+      "attributes": {
+        "locale": "synthetic-fixture"
+      },
+      "type": "appStoreVersionLocalizations"
+    }
+  },
+  "invalid": {}
+}

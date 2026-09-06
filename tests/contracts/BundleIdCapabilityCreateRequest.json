@@ -1,0 +1,20 @@
+{
+  "schema": "BundleIdCapabilityCreateRequest",
+  "valid": {
+    "data": {
+      "relationships": {
+        "bundleId": {
+          "data": {
+            "id": "synthetic-fixture",
+            "type": "bundleIds"
+          }
+        }
+      },
+      "attributes": {
+        "capabilityType": "ICLOUD"
+      },
+      "type": "bundleIdCapabilities"
+    }
+  },
+  "invalid": {}
+}

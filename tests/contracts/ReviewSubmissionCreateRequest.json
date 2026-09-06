@@ -1,0 +1,17 @@
+{
+  "schema": "ReviewSubmissionCreateRequest",
+  "valid": {
+    "data": {
+      "relationships": {
+        "app": {
+          "data": {
+            "id": "synthetic-fixture",
+            "type": "apps"
+          }
+        }
+      },
+      "type": "reviewSubmissions"
+    }
+  },
+  "invalid": {}
+}

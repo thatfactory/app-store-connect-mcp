@@ -1,0 +1,17 @@
+{
+  "schema": "ReviewSubmissionItemCreateRequest",
+  "valid": {
+    "data": {
+      "relationships": {
+        "reviewSubmission": {
+          "data": {
+            "id": "synthetic-fixture",
+            "type": "reviewSubmissions"
+          }
+        }
+      },
+      "type": "reviewSubmissionItems"
+    }
+  },
+  "invalid": {}
+}

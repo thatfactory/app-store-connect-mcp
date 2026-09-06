@@ -1,0 +1,14 @@
+{
+  "schema": "DeviceCreateRequest",
+  "valid": {
+    "data": {
+      "attributes": {
+        "name": "synthetic-fixture",
+        "udid": "synthetic-fixture",
+        "platform": "IOS"
+      },
+      "type": "devices"
+    }
+  },
+  "invalid": {}
+}

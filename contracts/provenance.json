@@ -1,0 +1,10 @@
+{
+  "source": "https://developer.apple.com/sample-code/app-store-connect/app-store-connect-openapi-specification.zip",
+  "retrievedAt": "2026-09-06",
+  "version": "4.4.1",
+  "archiveSha256": "9386762084aa7156a9d5aab20526daf8d4ca423ddaebb0b3fffd2ef6fd836370",
+  "schemaSha256": "ed0202ef37155b9334772482d2ea0be688c3046b284c895bcbea5455fbe54fd8",
+  "excerptSha256": "fd2a9bdab11b04a640d5505ff27f02cef367ba08f65e85804339f739d0fe4427",
+  "extraction": "scripts/extract-contract.mjs",
+  "liveVerified": false
+}

@@ -1,0 +1,14 @@
+{
+  "schema": "BundleIdCreateRequest",
+  "valid": {
+    "data": {
+      "attributes": {
+        "identifier": "synthetic-fixture",
+        "name": "synthetic-fixture",
+        "platform": "IOS"
+      },
+      "type": "bundleIds"
+    }
+  },
+  "invalid": {}
+}

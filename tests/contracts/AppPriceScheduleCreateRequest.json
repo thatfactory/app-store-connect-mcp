@@ -1,0 +1,26 @@
+{
+  "schema": "AppPriceScheduleCreateRequest",
+  "valid": {
+    "data": {
+      "relationships": {
+        "app": {
+          "data": {
+            "id": "synthetic-fixture",
+            "type": "apps"
+          }
+        },
+        "manualPrices": {
+          "data": []
+        },
+        "baseTerritory": {
+          "data": {
+            "id": "synthetic-fixture",
+            "type": "territories"
+          }
+        }
+      },
+      "type": "appPriceSchedules"
+    }
+  },
+  "invalid": {}
+}
