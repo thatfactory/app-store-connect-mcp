@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "stage": "screenshot-transfer",
+  "stage": "screenshot-sync",
   "tools": [
     "get_capabilities",
     "validate_repository",
@@ -13,7 +13,8 @@
     "get_bundle_id_state",
     "inspect_xcode_project",
     "plan_provisioning_changes",
-    "plan_metadata_changes"
+    "plan_metadata_changes",
+    "plan_screenshot_changes"
   ],
   "supportedLocales": [
     "en-US",
@@ -47,5 +48,5 @@
     "review",
     "categories (explicit manageCategories)"
   ],
-  "screenshotTransfer": "internal lifecycle implemented; approved screenshot planning follows in Phase 08"
+  "screenshotTransfer": "approved localized set plans with explicit removal, upload, processing verification and order"
 }
