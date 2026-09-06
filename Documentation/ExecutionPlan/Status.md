@@ -1,6 +1,6 @@
 # Execution status
 
-Phase 00 candidate: official OpenAPI 4.4.1 pinned, 131 operation contracts inventoried, domain conditions documented, 20 structural checks passing. Full-schema reproducibility check passed. No live Apple calls, runtime MCP, or publication yet. Phase 01 and later remain pending.
+Phase 00 candidate: official OpenAPI 4.4.1 pinned, 131 operation contracts inventoried, domain conditions documented, 21 contract/documentation checks passing. Full-schema reproducibility check passed. No live Apple calls, runtime MCP, or publication yet. Phase 01 and later remain pending.
 
 The attached combined implementation plan is preserved at the root. Canonical phase documents are split under this directory. Missing Architecture, API-Capabilities, Sources and Headroom procedure documents were created from the supplied product/format/plan contracts with fresh official API evidence. The original numbered S/R bibliography was not supplied; Sources documents that limitation.
 

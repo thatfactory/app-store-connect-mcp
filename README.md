@@ -111,7 +111,7 @@ See [the format specification](Documentation/AppStore-Format.md) for defaults, o
 
 The intended development commands are `npm ci`, `npm test`, `npm run typecheck`, `npm run build`, and `npm pack --dry-run`. Phase 01 creates them.
 
-[Product](Documentation/Product.md) explains the longer-term vision. [Architecture](Documentation/Architecture.md) defines internal boundaries. [Execution plan](Documentation/ExecutionPlan/ExecutionPlan.md) breaks implementation into reviewable changes. [Sources](Documentation/Sources.md) records the research baseline.
+[Product](Documentation/Product.md) explains the longer-term vision. [Architecture](Documentation/Architecture.md) defines internal boundaries. [Execution plan](Documentation/ExecutionPlan/README.md) breaks implementation into reviewable changes. [Sources](Documentation/Sources.md) records the research baseline.
 
 Planned distribution: public scoped npm package, MIT license, GitHub release publishing with trusted publishing where configured. Keep all customer repositories, credentials, exported review information, and signing artifacts out of the package tarball.
 
