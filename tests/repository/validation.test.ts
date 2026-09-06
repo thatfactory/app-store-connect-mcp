@@ -86,3 +86,19 @@ test('the checked-in synthetic example passes offline validation',async()=>{
 test('cancelled validation stops without returning an apparently valid report',async()=>fixture(async(root)=>{
   await assert.rejects(validateRepository(select(root),[root],{},AbortSignal.abort()),/cancelled/);
 }));
+test('directory enumeration stops at its shared threshold and closes the iterator',async()=>{
+  const {collectDirectoryNames}=await import('../../src/repository/files.js');
+  let consumed=0;let closed=false;
+  async function* entries(){try{for(let i=0;i<1_000_000;i++){consumed++;yield {name:String(i),isDirectory:()=>true,isSymbolicLink:()=>false};}}finally{closed=true;}}
+  await assert.rejects(collectDirectoryNames(entries(),{remaining:2000}),/Directory entry limit/);
+  assert.equal(consumed,2001);assert.equal(closed,true);
+  const shared={remaining:2};
+  async function* one(){yield {name:'one',isDirectory:()=>true,isSymbolicLink:()=>false};}
+  await collectDirectoryNames(one(),shared);await collectDirectoryNames(one(),shared);
+  await assert.rejects(collectDirectoryNames(one(),shared),/across the validation request/);
+});
+test('directory cancellation closes a streaming iterator before collecting names',async()=>{
+  const {collectDirectoryNames}=await import('../../src/repository/files.js');let closed=false;let consumed=0;
+  async function* entries(){try{for(let i=0;i<100;i++){consumed++;yield {name:String(i),isDirectory:()=>true,isSymbolicLink:()=>false};}}finally{closed=true;}}
+  await assert.rejects(collectDirectoryNames(entries(),{remaining:2000},AbortSignal.abort()));assert.equal(closed,true);assert.equal(consumed,1);
+});

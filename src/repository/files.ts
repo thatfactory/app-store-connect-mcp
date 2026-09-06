@@ -1,5 +1,5 @@
 import { constants } from 'node:fs';
-import { open, realpath, stat, readdir } from 'node:fs/promises';
+import { open, realpath, stat, opendir } from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { AppStoreError } from '../errors.js';
@@ -8,6 +8,7 @@ export function safeRelative(relative:string):boolean{return relative.length>0&&
 export class RepositoryFiles {
   readonly hashes:Record<string,string>={};
   #bytes=0;#count=0;
+  readonly #directoryBudget={remaining:2000};
   private constructor(readonly root:string,private readonly signal?:AbortSignal){}
   static async create(requested:string,allowedRoots:readonly string[],signal?:AbortSignal):Promise<RepositoryFiles>{
     if(!path.isAbsolute(requested))throw new AppStoreError('unsafeRoot','AppStore root must be absolute.');
@@ -42,7 +43,19 @@ export class RepositoryFiles {
     this.signal?.throwIfAborted();if(!safeRelative(relative))throw new AppStoreError('unsafePath','Invalid directory path.');
     let resolved:string;try{resolved=await realpath(path.join(this.root,relative));}catch(error){if((error as NodeJS.ErrnoException).code==='ENOENT')return [];throw new AppStoreError('unsafePath','Directory is unavailable.');}
     if(!contains(this.root,resolved))throw new AppStoreError('unsafePath','Directory escapes the approved root.');
-    const entries=await readdir(resolved,{withFileTypes:true});if(entries.length>2000)throw new AppStoreError('inputLimit','Directory entry limit exceeded.');
-    return entries.filter(entry=>entry.isDirectory()||entry.isSymbolicLink()).map(entry=>entry.name).sort();
+    const directory=await opendir(resolved,{bufferSize:1});
+    // Async iteration closes the handle on completion, cancellation, or throw.
+    return collectDirectoryNames(directory,this.#directoryBudget,this.signal);
   }
+}
+
+interface DirectoryEntry {name:string;isDirectory():boolean;isSymbolicLink():boolean}
+export async function collectDirectoryNames(entries:AsyncIterable<DirectoryEntry>,budget:{remaining:number},signal?:AbortSignal):Promise<string[]>{
+  const names:string[]=[];
+  for await(const entry of entries){
+    signal?.throwIfAborted();
+    if(budget.remaining--<=0)throw new AppStoreError('inputLimit','Directory entry limit exceeded across the validation request.');
+    if(entry.isDirectory()||entry.isSymbolicLink())names.push(entry.name);
+  }
+  return names.sort();
 }
