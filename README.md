@@ -135,3 +135,5 @@ The validator bounds each text/JSON file to 1 MiB, each referenced asset to 32 M
 | `prepare_app_record` | Confirm ID/bundle agreement or return manual bootstrap fields and missing owner values. Never POST /apps. |
 
 Exports include metadata and a separate inventory/English fingerprint. Review contacts/logins become environment references; freeform review notes are withheld for owner inspection. No signed upload URLs or CDN downloads are exported. Null prose fields are recorded as unmanaged in inventory because plain text has no null representation. Unsupported locale/release configuration stops export instead of substituting defaults. Partial local exports remain visible for inspection after failure. See [read-only acceptance evidence](Documentation/Acceptance-Phase-03.md).
+
+The shared plan engine is implemented, with immutable process-bound plans, exact-subset host approval, flushed redacted journals, stale-state checks and readback reconciliation. Domain write adapters remain pending. See [plan and recovery semantics](Documentation/Plan-and-Apply.md).
