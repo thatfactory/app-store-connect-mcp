@@ -31,7 +31,7 @@ export async function writeSigningArtifact(api:ApiClient,args:z.infer<typeof art
 export function publicProvisioningInventory(inventory:{certificates:CertificateRecord[];devices:DeviceRecord[];profiles:ProfileRecord[]},family:'certificates'|'devices'|'profiles'|'all',ids:readonly string[]=[]):Record<string,unknown> {
   const selected=new Set(ids);const include=(id:string)=>!selected.size||selected.has(id);const fingerprint=(value:string)=>createHash('sha256').update(value).digest('hex');
   const output={
-    ...(family==='all'||family==='certificates'?{certificates:inventory.certificates.filter(item=>include(item.id)).map(({serialFingerprint,...item})=>({...item,serialFingerprint:fingerprint(serialFingerprint)}))}:{}),
+    ...(family==='all'||family==='certificates'?{certificates:inventory.certificates.filter(item=>include(item.id)).map(({serialFingerprint,publicKeyFingerprint:_,...item})=>({...item,serialFingerprint:fingerprint(serialFingerprint)}))}:{}),
     ...(family==='all'||family==='devices'?{devices:inventory.devices.filter(item=>include(item.id)).map(({udid,...item})=>({...item,udidFingerprint:fingerprint(udid)}))}:{}),
     ...(family==='all'||family==='profiles'?{profiles:inventory.profiles.filter(item=>include(item.id)).map(({uuid,...item})=>({...item,uuidFingerprint:fingerprint(uuid)}))}:{}),
   };

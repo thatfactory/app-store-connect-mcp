@@ -11,8 +11,9 @@ import {validateCsr,type CsrFacts} from '../signing/csr.js';
 
 const id=z.string().regex(/^[A-Za-z0-9_-]{1,128}$/);
 const root=z.string().min(1);
+const creatableCertificateTypes=certificateTypes.filter(type=>!type.startsWith('DEVELOPER_ID_')) as [Exclude<typeof certificateTypes[number],'DEVELOPER_ID_APPLICATION'|'DEVELOPER_ID_APPLICATION_G2'>,...Exclude<typeof certificateTypes[number],'DEVELOPER_ID_APPLICATION'|'DEVELOPER_ID_APPLICATION_G2'>[]];
 const action=z.discriminatedUnion('type',[
-  z.object({type:z.literal('createCertificate'),certificateType:z.enum(certificateTypes),csrPath:z.string().min(1).max(512)}).strict(),
+  z.object({type:z.literal('createCertificate'),certificateType:z.enum(creatableCertificateTypes),csrPath:z.string().min(1).max(512)}).strict(),
   z.object({type:z.literal('revokeCertificate'),certificateId:id}).strict(),
   z.object({type:z.literal('registerDevice'),name:z.string().min(1).max(200),platform:z.enum(platforms),udid:z.string().regex(/^[A-Za-z0-9-]{8,100}$/)}).strict(),
   z.object({type:z.literal('updateDevice'),deviceId:id,name:z.string().min(1).max(200).optional(),status:z.enum(['ENABLED','DISABLED']).optional()}).strict(),
@@ -64,9 +65,11 @@ export class SigningAdapter implements Adapter {
   summary(snapshot:Snapshot):Json {
     const value=snapshot as SigningSnapshot;const inventory=value.remote.inventory as unknown as Inventory;const action=value.action;
     if(action.type==='createCertificate')return {action:action.type,certificateType:action.certificateType,activeSameType:inventory.certificates.filter(item=>item.certificateType===action.certificateType&&item.activated&&!expired(item.expirationDate)).length,csr:{algorithm:value.csr!.algorithm,...(value.csr!.bits?{bits:value.csr!.bits}:{}),...(value.csr!.curve?{curve:value.csr!.curve}:{})},accountLimit:'Apple enforces account-specific quotas; no certificate is automatically revoked.'};
-    if(action.type==='revokeCertificate')return {action:action.type,affectedProfileCount:inventory.profiles.filter(profile=>profile.certificateIds.includes(action.certificateId)).length,impact:'Revocation may affect other apps and profiles; no replacement is generated.'};
-    if(action.type==='createProfile')return {action:action.type,profileType:action.profileType,certificateCount:action.certificateIds.length,deviceCount:action.deviceIds.length,impact:'Creates exactly the reviewed relationships; capabilities never recreate profiles automatically.'};
-    return {action:action.type,impact:action.type==='deleteProfile'?'Deletes one exact profile; original bytes cannot be restored without recreation.':'Changes only the exact selected device.'};
+    if(action.type==='revokeCertificate'){const affectedProfileIds=inventory.profiles.filter(profile=>profile.certificateIds.includes(action.certificateId)).map(profile=>profile.id);return {action:action.type,certificateId:action.certificateId,affectedProfileCount:affectedProfileIds.length,affectedProfileIds,impact:'Revocation may affect other apps and profiles; no replacement is generated.'};}
+    if(action.type==='createProfile')return {action:action.type,profileType:action.profileType,bundleId:action.bundleId,certificateIds:action.certificateIds,deviceIds:action.deviceIds,impact:'Creates exactly the reviewed relationships; capabilities never recreate profiles automatically.'};
+    if(action.type==='registerDevice')return {action:action.type,platform:action.platform,name:action.name,udidFingerprint:createHash('sha256').update(action.udid).digest('hex'),impact:'Registers exactly the reviewed device identity.'};
+    if(action.type==='updateDevice')return {action:action.type,deviceId:action.deviceId,changes:{...(action.name!==undefined?{name:action.name}:{}),...(action.status!==undefined?{status:action.status}:{})},impact:'Changes only the exact selected device.'};
+    return {action:action.type,profileId:action.profileId,impact:'Deletes one exact profile; original bytes cannot be restored without recreation.'};
   }
   propose(snapshot:Snapshot):Operation[]{
     const value=snapshot as SigningSnapshot;const inventory=value.remote.inventory as unknown as Inventory;const action=value.action;let kind:Operation['kind']='update';let before:Json|null=null;let after:Json=action as unknown as Json;
@@ -76,7 +79,7 @@ export class SigningAdapter implements Adapter {
     if(action.type==='updateDevice'){const device=inventory.devices.find(item=>item.id===action.deviceId);if(!device)throw new AppStoreError('resourceNotFound','Select an existing exact device.');if(action.name===undefined&&action.status===undefined)throw new AppStoreError('emptyUpdate','Select a device name or status change.');after={...device,...(action.name?{name:action.name}:{}),...(action.status?{status:action.status}:{})} as unknown as Json;if(canonical(device)===canonical(after))return [];before=device as unknown as Json;}
     if(action.type==='createProfile'){kind='create';const duplicates=inventory.profiles.filter(item=>item.name===action.name);if(duplicates.length)throw new AppStoreError('profileConflict','Profile name already exists; select a distinct explicit name or delete the old exact profile separately.');before={profiles:inventory.profiles} as unknown as Json;}
     if(action.type==='deleteProfile'){kind='remove';const profile=inventory.profiles.find(item=>item.id===action.profileId);if(!profile)throw new AppStoreError('resourceNotFound','Select an existing exact profile.');before=profile as unknown as Json;after={deleted:true,profileId:profile.id};}
-    return [{id:opId(action.type),domain:this.domain,kind,key:'inventory',scope:`explicit ${action.type}`,before,after,dependencies:[],affects:['inventory'],sensitive:true,payload:{action,...(value.csr?{csrPem:value.csr.pem}:{})} as unknown as Json}];
+    return [{id:opId(action.type),domain:this.domain,kind,key:'inventory',scope:`explicit ${action.type}`,before,after,dependencies:[],affects:['inventory'],sensitive:true,payload:{action,...(value.csr?{csrPem:value.csr.pem,csrPublicKeySha256:value.csr.publicKeySha256}:{})} as unknown as Json}];
   }
   async execute(operation:Readonly<Operation>,signal?:AbortSignal):Promise<void>{
     const before=this.#last;const current=await this.capture(signal);if(!before||canonical(before)!==canonical(current))throw new AppStoreError('stalePlan','Provisioning inventory or selected sensitive input changed before dispatch.');this.#before.set(operation.id,structuredClone(current.remote.inventory as unknown as Inventory));const action=(operation.payload as unknown as {action:Selection['action'];csrPem?:string}).action;
@@ -88,9 +91,9 @@ export class SigningAdapter implements Adapter {
     else await this.api.request(`/v1/profiles/${action.profileId}`,{method:'DELETE',...(signal?{signal}:{})});
   }
   verify(operation:Readonly<Operation>,snapshot:Snapshot):boolean {
-    const before=this.#before.get(operation.id);const after=snapshot.remote.inventory as unknown as Inventory;const action=(operation.payload as unknown as {action:Selection['action']}).action;if(!before)return false;
+    const before=this.#before.get(operation.id);const after=snapshot.remote.inventory as unknown as Inventory;const payload=operation.payload as unknown as {action:Selection['action'];csrPublicKeySha256?:string};const action=payload.action;if(!before)return false;
     const otherFamilies=canonical(before.certificates)===canonical(after.certificates)&&canonical(before.devices)===canonical(after.devices)&&canonical(before.profiles)===canonical(after.profiles);
-    if(action.type==='createCertificate'){const prior=new Set(before.certificates.map(item=>item.id));const created=after.certificates.filter(item=>!prior.has(item.id));return created.length===1&&created[0]!.certificateType===action.certificateType&&created[0]!.activated&&sameExcept(before.certificates,after.certificates,new Set([created[0]!.id]))&&canonical(before.devices)===canonical(after.devices)&&canonical(before.profiles)===canonical(after.profiles);}
+    if(action.type==='createCertificate'){const prior=new Set(before.certificates.map(item=>item.id));const created=after.certificates.filter(item=>!prior.has(item.id));return created.length===1&&created[0]!.certificateType===action.certificateType&&created[0]!.activated&&created[0]!.publicKeyFingerprint!==null&&created[0]!.publicKeyFingerprint===payload.csrPublicKeySha256&&sameExcept(before.certificates,after.certificates,new Set([created[0]!.id]))&&canonical(before.devices)===canonical(after.devices)&&canonical(before.profiles)===canonical(after.profiles);}
     if(action.type==='revokeCertificate'){
       const affected=new Set(before.profiles.filter(profile=>profile.certificateIds.includes(action.certificateId)).map(profile=>profile.id));
       const normalized=after.profiles.map(profile=>{const prior=before.profiles.find(item=>item.id===profile.id);if(!prior||!affected.has(profile.id))return profile;if(![prior.profileState,'INVALID'].includes(profile.profileState))return profile;return {...profile,profileState:prior.profileState};});
