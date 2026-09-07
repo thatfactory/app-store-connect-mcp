@@ -35,11 +35,11 @@
   "genericAvailabilityMutation": "manualActionRequired",
   "decodedScreenshotValidation": "macOS with Apple Swift/ImageIO",
   "liveVerified": [
-    "Headroom read-only discovery",
-    "Headroom redacted export",
-    "Headroom four-locale metadata sync",
-    "Headroom unchanged English and repeated metadata no-op",
-    "Headroom free price and configured all-territory readback"
+    "read-only discovery",
+    "redacted export",
+    "multi-locale metadata synchronization",
+    "unmanaged-locale preservation and repeated metadata no-op",
+    "free price and configured-territory readback"
   ],
   "planEngineImplemented": true,
   "provisioningCapabilities": [

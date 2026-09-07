@@ -10,4 +10,4 @@ Availability is read and compared only. `all` expands to the complete current pa
 
 Configured territories do not prove that an app is effectively for sale. Apple's content statuses remain visible so readiness can report restrictions independently from requested distribution.
 
-The 2026-09-07 Headroom read-only acceptance used 18 GET requests and zero writes. It verified a simple free schedule in `USA`, one current manual price, 174 automatically equalized prices, 175 returned territories configured, and future territories enabled. Apple simultaneously reported `CANNOT_SELL` and `AVAILABLE_FOR_SALE_UNRELEASED_APP`, so the evidence records configured distribution without claiming effective availability. The private full response remains outside Git and the npm package.
+Read-only verification covered a simple free schedule, automatically equalized prices, configured territories, and future-territory behavior without making writes. Configured distribution does not prove effective availability; Apple can simultaneously report blocking availability states.
