@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "stage": "commerce",
+  "stage": "signing",
   "tools": [
     "get_capabilities",
     "validate_repository",
@@ -15,7 +15,10 @@
     "plan_provisioning_changes",
     "plan_metadata_changes",
     "plan_screenshot_changes",
-    "plan_commerce_changes"
+    "plan_commerce_changes",
+    "get_provisioning_resources",
+    "plan_signing_changes",
+    "download_signing_artifact"
   ],
   "supportedLocales": [
     "en-US",
@@ -54,5 +57,11 @@
   "commerce": {
     "basePrice": "approved exact catalog point plans for simple current schedules",
     "availability": "read and compare; generic mutation is manualActionRequired"
+  },
+  "signing": {
+    "inventory": "certificates, devices, profiles without raw artifact contents",
+    "lifecycle": "one explicit sensitive action per approved plan",
+    "privateKeys": "forbidden",
+    "downloads": "exact new file, mode 0600"
   }
 }
