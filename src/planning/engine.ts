@@ -65,7 +65,9 @@ export class PlanEngine {
   #unrelatedChange(before:Snapshot,after:Snapshot,operation:Operation):boolean{
     return [...new Set([...Object.keys(before.remote),...Object.keys(after.remote)])].some(key=>!operation.affects.includes(key)&&!this.#equal(before.remote[key],after.remote[key]));
   }
-  async apply(approval:Approval,signal?:AbortSignal):Promise<Journal>{
+  async apply(approval:Approval,signal?:AbortSignal):Promise<Journal>{return this.#apply(approval,false,signal);}
+  async submit(approval:Approval,submissionEnabled:boolean,signal?:AbortSignal):Promise<Journal>{if(!submissionEnabled)throw new AppStoreError('submissionDisabled','Restart with both --allow-writes and --allow-submission before submitting.');return this.#apply(approval,true,signal);}
+  async #apply(approval:Approval,submissionMode:boolean,signal?:AbortSignal):Promise<Journal>{
     if(!this.allowWrites)throw new AppStoreError('readOnly','Restart with the independently authorized write flag before applying.');
     if(approval.authorization?.confirmedByHost!==true)throw new AppStoreError('approvalRequired','The host must authorize the exact operation subset; a digest alone is not consent.');
     const record=this.#record(approval.planId);const {plan,adapter}=record;
@@ -74,8 +76,9 @@ export class PlanEngine {
     const selected=new Set(approval.operationIds);
     if(selected.size!==approval.operationIds.length||approval.operationIds.some(id=>!plan.operations.some(operation=>operation.id===id)))throw new AppStoreError('invalidApproval','Approval contains unknown or repeated operations.');
     const operations=plan.operations.filter(operation=>selected.has(operation.id));
+    if(submissionMode&&(operations.length!==plan.operations.length||operations.some(operation=>operation.kind!=='submission')))throw new AppStoreError('invalidSubmissionApproval','Submission requires every operation in an exact submission-only plan.');
     for(const operation of operations){
-      if(operation.kind==='submission')throw new AppStoreError('submissionForbidden','Ordinary apply cannot submit for review.');
+      if(!submissionMode&&operation.kind==='submission')throw new AppStoreError('submissionForbidden','Ordinary apply cannot submit for review.');
       if(operation.dependencies.some(id=>!selected.has(id)))throw new AppStoreError('missingDependency','Approve the required dependency subset or create a new plan.');
     }
     // Account-wide serialization also covers shared AppInfo and provisioning resources.

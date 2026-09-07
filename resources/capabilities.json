@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "stage": "signing",
+  "stage": "readiness-submission",
   "tools": [
     "get_capabilities",
     "validate_repository",
@@ -18,7 +18,10 @@
     "plan_commerce_changes",
     "get_provisioning_resources",
     "plan_signing_changes",
-    "download_signing_artifact"
+    "download_signing_artifact",
+    "check_release_readiness",
+    "plan_submission",
+    "submit_for_review"
   ],
   "supportedLocales": [
     "en-US",
@@ -28,7 +31,7 @@
     "pt-BR"
   ],
   "remoteWritesImplemented": true,
-  "submissionImplemented": false,
+  "submissionImplemented": true,
   "genericAvailabilityMutation": "manualActionRequired",
   "decodedScreenshotValidation": "macOS with Apple Swift/ImageIO",
   "liveVerified": [
@@ -63,5 +66,10 @@
     "lifecycle": "one explicit sensitive action per approved plan",
     "privateKeys": "forbidden",
     "downloads": "exact new file, mode 0600"
+  },
+  "submission": {
+    "buildSelection": "exact existing processed build ID",
+    "manualChecks": "privacy, age rating, agreements and regional obligations remain explicit",
+    "execution": "separate allow-submission gate and submission-only plan"
   }
 }

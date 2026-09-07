@@ -63,6 +63,13 @@ export class MetadataAdapter implements Adapter{
   async #list(url:string,type:string,fields:readonly string[],signal?:AbortSignal):Promise<Resource[]>{
     const list=(await this.api.list<unknown>(url,signal)).map(item=>resource(item,type,fields));if(new Set(list.map(item=>item.id)).size!==list.length)throw new AppStoreError('incompleteSnapshot','Duplicate resources in metadata snapshot.');return list;
   }
+  async reviewDrift(signal?:AbortSignal):Promise<boolean>{
+    const local=await this.#local(signal);const wanted=local.intent.review?.attributes;if(!wanted)return false;const {selected,app}=local;const platform=platforms[selected.platform];
+    const appDoc=await this.api.request<ApiDocument>(`/v1/apps/${app.app.appStoreId}`,signal?{signal}:{});const currentApp=resource(appDoc?.data,'apps',['bundleId']);if(currentApp.id!==app.app.appStoreId||currentApp.attributes.bundleId!==app.app.bundleId)throw new AppStoreError('identityMismatch','App Store ID and bundle ID do not agree in this account.');
+    const versions=await this.#list(`/v1/apps/${currentApp.id}/appStoreVersions`,'appStoreVersions',versionFields,signal);const matches=versions.filter(version=>version.attributes.platform===platform&&version.attributes.versionString===selected.version);if(matches.length!==1)throw new AppStoreError(matches.length?'ambiguousVersion':'versionNotFound','Select one exact existing App Store version for review-detail comparison.');
+    let doc:ApiDocument|undefined;try{doc=await this.api.request<ApiDocument>(`/v1/appStoreVersions/${matches[0]!.id}/appStoreReviewDetail`,signal?{signal}:{});}catch(error){if(!(error instanceof AppStoreError&&error.status===404))throw error;}
+    if(!doc?.data)return true;const review=resource(doc.data,'appStoreReviewDetails',reviewFields);const actual={id:review.id,...Object.fromEntries(Object.entries(review.attributes).map(([key,value])=>[key,secretHash(value)]))};return !equalManaged(actual,wanted);
+  }
   async capture(signal?:AbortSignal):Promise<MetadataSnapshot>{
     const local=await this.#local(signal);const {selected,app,intent}=local;const platform=platforms[selected.platform];
     const appDoc=await this.api.request<ApiDocument>(`/v1/apps/${app.app.appStoreId}`,signal?{signal}:{});const currentApp=resource(appDoc?.data,'apps',['bundleId','primaryLocale']);

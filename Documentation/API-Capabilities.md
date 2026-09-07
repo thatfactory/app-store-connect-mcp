@@ -1,6 +1,6 @@
 # Capability and delivery status
 
-Phases 00–09 are merged. Phase 06 provides selected localized metadata, version and review plans through the same approved engine. Phase 08 provides approved screenshot set reconciliation. Phase 09 adds exact base-price plans and read-only availability comparison. Phase 10 adds explicit certificate, device and profile inventory/lifecycle tools. Submission remains pending. Live acceptance is recorded separately from mock coverage.
+Phases 00–09 are merged. Phase 06 provides selected localized metadata, version and review plans through the same approved engine. Phase 08 provides approved screenshot set reconciliation. Phase 09 adds exact base-price plans and read-only availability comparison. Phase 10 adds explicit certificate, device and profile inventory/lifecycle tools. Phase 11 adds exact-build readiness and separately gated review submission. Live acceptance is recorded separately from mock coverage.
 
 | Phase | Capability | Status |
 | --- | --- | --- |
@@ -15,7 +15,7 @@ Phases 00–09 are merged. Phase 06 provides selected localized metadata, versio
 | 08 | Approved localized screenshot sets and order | Merged PR #9; live originals pending |
 | 09 | Exact base price and availability comparison | Merged PR #10; Headroom reads verified |
 | 10 | Explicit certificates, devices, profiles and downloads | Implemented candidate; mocked lifecycle only |
-| 11 | Readiness and guarded submission | Pending |
+| 11 | Readiness and guarded submission | Implemented candidate; live submission requires genuine release intent |
 | 12 | Headroom acceptance and release packaging | Pending |
 
 Initial app creation is manual. Screenshot source assets and translations belong to the caller. Additional display families, private endpoints, binary uploads, IAPs and public release actions are outside the first implementation. See API-Contract.md for conditional write boundaries.
