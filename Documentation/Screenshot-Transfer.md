@@ -1,6 +1,6 @@
 # Screenshot validation and transfer
 
-Phase 07 supplies offline image validation and an internal upload lifecycle. The public approved screenshot planner belongs to Phase 08. Tests use synthetic images and mock Apple responses; no live screenshot upload is claimed.
+Phase 07 supplies offline image validation and an internal upload lifecycle. The public approved screenshot planner is described in Screenshot-Sync.md. Tests use synthetic images and mock Apple responses; no live screenshot upload is claimed.
 
 Original PNG/JPEG bytes are capped at 32 MiB per file and decoded with Apple's ImageIO through the packaged Swift helper on macOS. The helper requires an installed Apple Swift toolchain. PNG chunk boundaries and CRCs are checked before decoding. Accepted APP_DESKTOP sizes are 1280×800, 1440×900, 2560×1600 and 2880×1800, with RGB color, no alpha and no orientation transform. Validation never edits, crops or recompresses the source. SHA-256 binds local bytes; Apple's sourceFileChecksum uses a separate MD5 digest.
 

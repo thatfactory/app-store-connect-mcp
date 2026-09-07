@@ -1,3 +1,4 @@
+import {readFile} from 'node:fs/promises';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import type { Configuration } from '../config.js';
@@ -8,8 +9,8 @@ export function registerCapabilities(server: McpServer, config: Configuration): 
     annotations: {readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false},
   }, async (_args, extra) => {
     if (extra.signal.aborted) return {isError: true, content: [{type: 'text', text: 'Request cancelled.'}]};
-    const result = {schemaVersion: 1, stage: 'metadata', tools: ['get_capabilities', 'validate_repository', 'list_apps', 'get_app_store_state', 'export_app_store_state', 'prepare_app_record', 'apply_plan', 'get_operation_status','get_bundle_id_state','inspect_xcode_project','plan_provisioning_changes','plan_metadata_changes'], remoteWritesImplemented: true,
-      submissionImplemented: false, allowedRootCount: config.allowedRoots.length, allowWrites: config.allowWrites, allowSubmission: config.allowSubmission};
+    const packaged=JSON.parse(await readFile(new URL('../../resources/capabilities.json',import.meta.url),'utf8'));
+    const result={...packaged,allowedRootCount:config.allowedRoots.length,allowWrites:config.allowWrites,allowSubmission:config.allowSubmission};
     return {content: [{type: 'text', text: JSON.stringify(result)}], structuredContent: result};
   });
 }
