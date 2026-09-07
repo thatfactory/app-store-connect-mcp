@@ -46,7 +46,7 @@ AppStore/
       macOS/
         en-US/
           01-overview.png
-          02-weekly-budget.png
+          02-details.png
         de-DE/
         fr-FR/
         ja/
@@ -63,7 +63,6 @@ Example for a sample app, with deliberately unresolved URL placeholders:
 {
   "schemaVersion": 1,
   "app": {
-    "appStoreId": "6809208740",
     "bundleId": "com.example.sample-app",
     "primaryLocale": "en-US"
   },
@@ -96,7 +95,7 @@ An optional `project` object can name a repository-relative project/workspace pa
 ```json
 {
   "name": "Sample App",
-  "subtitle": "See your pace. Make it last."
+  "subtitle": "A concise sample subtitle."
 }
 ```
 
@@ -176,7 +175,7 @@ Missing review secrets block only an operation that would write/use them, not un
   "sets": {
     "APP_DESKTOP": [
       "assets/screenshots/macOS/en-US/01-overview.png",
-      "assets/screenshots/macOS/en-US/02-weekly-budget.png"
+      "assets/screenshots/macOS/en-US/02-details.png"
     ]
   }
 }

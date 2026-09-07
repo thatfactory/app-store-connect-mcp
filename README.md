@@ -83,25 +83,25 @@ The server starts without remote write access. Add `--allow-writes` to permit ap
 ## Available Tools
 
 - `get_capabilities()`
-- `validate_repository(root, domains?, locales?, platform?, version?)`
-- `list_apps(bundleId?, limit?)`
-- `get_app_store_state(appStoreId, bundleId, platform?, version?)`
-- `export_app_store_state(appStoreId, bundleId, destination, platform?, version?)`
-- `prepare_app_record(bundleId, appStoreId?, name?, sku?, primaryLocale?, platform?)`
-- `apply_plan(planId, digest, approvedOperationIds)`
-- `get_operation_status(planId)`
-- `get_bundle_id_state(identifier)`
-- `inspect_xcode_project(root, project, target, configuration, sdk)`
-- `plan_provisioning_changes(root, identifiers)`
-- `plan_metadata_changes(root, appStoreId, bundleId, platform, version, domains, locales?)`
-- `plan_screenshot_changes(root, appStoreId, bundleId, platform, version, locales)`
-- `plan_commerce_changes(root, appStoreId, bundleId)`
-- `get_provisioning_resources(resourceTypes?)`
-- `plan_signing_changes(root, action)`
-- `download_signing_artifact(resourceType, resourceId, destination)`
-- `check_release_readiness(root, appStoreId, bundleId, platform, version)`
-- `plan_submission(root, appStoreId, bundleId, platform, version, buildId, releaseMode)`
-- `submit_for_review(planId, digest, approvedOperationIds)`
+- `validate_repository()`
+- `list_apps()`
+- `get_app_store_state()`
+- `export_app_store_state()`
+- `prepare_app_record()`
+- `apply_plan()`
+- `get_operation_status()`
+- `get_bundle_id_state()`
+- `inspect_xcode_project()`
+- `plan_provisioning_changes()`
+- `plan_metadata_changes()`
+- `plan_screenshot_changes()`
+- `plan_commerce_changes()`
+- `get_provisioning_resources()`
+- `plan_signing_changes()`
+- `download_signing_artifact()`
+- `check_release_readiness()`
+- `plan_submission()`
+- `submit_for_review()`
 
 Use `get_capabilities` for the packaged implementation contract and each tool's MCP schema for its complete input shape.
 
