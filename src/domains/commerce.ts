@@ -21,6 +21,9 @@ function relation(raw:unknown,name:string,type:string):string{
  const data=(raw as {relationships?:Record<string,{data?:unknown}>}).relationships?.[name]?.data;
  return resource({...object(data),attributes:{}},type,[]).id;
 }
+function simpleSchedule(price:PriceState,baseTerritory:string,today=new Date().toISOString().slice(0,10)):boolean {
+  return price.manual.length===1&&price.manual[0]!.territory===baseTerritory&&price.manual[0]!.endDate===null&&(!price.manual[0]!.startDate||price.manual[0]!.startDate<=today)&&price.automatic.every(entry=>entry.endDate===null&&(!entry.startDate||entry.startDate<=today));
+}
 export function decimal(value:string):string{if(value.length>40||!/^\d+(?:\.\d+)?$/.test(value))throw new AppStoreError('invalidPrice','Prices must be exact nonnegative decimal strings.');const [integer,fraction='']=value.split('.');const whole=integer!.replace(/^0+(?=\d)/,'');const tail=fraction.replace(/0+$/,'');return whole+(tail?'.'+tail:'');}
 export class CommerceAdapter implements Adapter{
  readonly domain='commerce';#last:CommerceSnapshot|undefined;
@@ -67,7 +70,7 @@ export class CommerceAdapter implements Adapter{
  propose(snapshot:Snapshot):Operation[]{
   const desired=snapshot.remote.desiredPrice as {baseTerritory:string;customerPrice:string;pointId:string}|undefined;if(!desired)return [];const before=snapshot.remote.price as unknown as PriceState|null;
   if(before?.baseTerritory===desired.baseTerritory&&before.current?.customerPrice===desired.customerPrice)return [];
-  if(before&&(before.manual.length!==1||before.manual.some(price=>price.territory!==before.baseTerritory||price.endDate!==null||(price.startDate!==null&&price.startDate>new Date().toISOString().slice(0,10)))||before.automatic.some(price=>price.endDate!==null||(price.startDate!==null&&price.startDate>new Date().toISOString().slice(0,10)))))throw new AppStoreError('complexPriceSchedule','Existing overrides or future schedules require manual preservation; v1 only replaces a simple current base price.');
+  if(before&&!simpleSchedule(before,before.baseTerritory))throw new AppStoreError('complexPriceSchedule','Existing overrides or future schedules require manual preservation; v1 only replaces a simple current base price.');
   return [{id:'commerce-'+createHash('sha256').update(snapshot.target.appId!+':price').digest('hex').slice(0,24),domain:this.domain,kind:before?'update':'create',key:'price',scope:'APP-WIDE; immediate base price replacement and Apple-generated territorial equalization',before:snapshot.remote.price??null,after:{...desired,start:'immediate',affectedTerritories:snapshot.remote.territories!,scheduleImpact:'Replaces the simple current base schedule; no future scheduling supported.'},dependencies:[],affects:['price'],sensitive:false}];
  }
  async execute(operation:Readonly<Operation>,signal?:AbortSignal):Promise<void>{
@@ -75,6 +78,6 @@ export class CommerceAdapter implements Adapter{
   const priceId='${newprice-0}';
   await this.api.request('/v1/appPriceSchedules',{method:'POST',body:{data:{type:'appPriceSchedules',relationships:{app:{data:{type:'apps',id:current.target.appId}},baseTerritory:{data:{type:'territories',id:desired.baseTerritory}},manualPrices:{data:[{type:'appPrices',id:priceId}]}}},included:[{type:'appPrices',id:priceId,attributes:{startDate:null,endDate:null},relationships:{appPricePoint:{data:{type:'appPricePoints',id:desired.pointId}}}}]},...(signal?{signal}:{})});
  }
- verify(operation:Readonly<Operation>,snapshot:Snapshot):boolean{const desired=operation.after as {baseTerritory:string;pointId:string;customerPrice:string};const price=snapshot.remote.price as unknown as PriceState|null;return !!price&&price.baseTerritory===desired.baseTerritory&&price.current?.pointId===desired.pointId&&price.current.customerPrice===desired.customerPrice&&price.manual.length===1&&price.manual[0]!.territory===desired.baseTerritory&&price.manual[0]!.endDate===null;}
+ verify(operation:Readonly<Operation>,snapshot:Snapshot):boolean{const desired=operation.after as {baseTerritory:string;pointId:string;customerPrice:string};const price=snapshot.remote.price as unknown as PriceState|null;return !!price&&price.baseTerritory===desired.baseTerritory&&price.current?.pointId===desired.pointId&&price.current.customerPrice===desired.customerPrice&&simpleSchedule(price,desired.baseTerritory);}
  remoteIds(_operation:Readonly<Operation>,snapshot:Snapshot):string[]{const state=snapshot.remote.price as unknown as PriceState|null;return state?[state.id,...state.manual.map(item=>item.id)]:[];}
 }
