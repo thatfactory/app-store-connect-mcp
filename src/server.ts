@@ -1,4 +1,5 @@
 import {registerScreenshots} from './tools/screenshots.js';
+import {registerCommerce} from './tools/commerce.js';
 import { registerMetadata } from './tools/metadata.js';
 import { registerProvisioning } from './tools/provisioning.js';
 import { PlanEngine } from './planning/engine.js';
@@ -21,6 +22,7 @@ export function createServer(config: Configuration): McpServer {
   registerProvisioning(server,config,plans);
   registerMetadata(server,config,plans);
   registerScreenshots(server,config,plans);
+  registerCommerce(server,config,plans);
   for (const name of Object.keys(schemas)) {
     const uri = `appstore-connect://schemas/${name}`;
     server.registerResource(`schema-${name}`, uri, {mimeType: "application/schema+json"}, async () => ({contents: [{uri, mimeType: "application/schema+json", text: await readFile(new URL(`../resources/schemas/${name}.json`, import.meta.url), "utf8")}]}));

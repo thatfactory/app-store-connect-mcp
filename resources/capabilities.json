@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "stage": "screenshot-sync",
+  "stage": "commerce",
   "tools": [
     "get_capabilities",
     "validate_repository",
@@ -14,7 +14,8 @@
     "inspect_xcode_project",
     "plan_provisioning_changes",
     "plan_metadata_changes",
-    "plan_screenshot_changes"
+    "plan_screenshot_changes",
+    "plan_commerce_changes"
   ],
   "supportedLocales": [
     "en-US",
@@ -31,7 +32,8 @@
     "Headroom read-only discovery",
     "Headroom redacted export",
     "Headroom four-locale metadata sync",
-    "Headroom unchanged English and repeated metadata no-op"
+    "Headroom unchanged English and repeated metadata no-op",
+    "Headroom free price and configured all-territory readback"
   ],
   "planEngineImplemented": true,
   "provisioningCapabilities": [
@@ -48,5 +50,9 @@
     "review",
     "categories (explicit manageCategories)"
   ],
-  "screenshotTransfer": "approved localized set plans with explicit removal, upload, processing verification and order"
+  "screenshotTransfer": "approved localized set plans with explicit removal, upload, processing verification and order",
+  "commerce": {
+    "basePrice": "approved exact catalog point plans for simple current schedules",
+    "availability": "read and compare; generic mutation is manualActionRequired"
+  }
 }
