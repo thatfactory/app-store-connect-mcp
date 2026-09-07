@@ -1,6 +1,6 @@
 # Implementation plan - combined reading copy
 
-This file combines the execution index and all 13 phase documents for agent handoff. The canonical editable documents are under ``; update those and regenerate this copy when implementation changes the plan. Read the shared Product, Architecture, API-Capabilities, and AppStore-Format documents alongside it.
+This file combines the execution index and all 13 phase documents for agent handoff. The canonical editable documents are under `Documentation/ExecutionPlan/`; update those and regenerate this copy when implementation changes the plan. Read the shared Product, Architecture, API-Capabilities, and AppStore-Format documents alongside it.
 
 
 ---
@@ -82,9 +82,6 @@ Do not auto-correct owner-authored translations, keywords, capability choices, c
 A phase report includes changed files, tests actually executed, unresolved blockers, API-contract evidence level, and any manual action needed. Never substitute an unexecuted test list for test results. An implementation agent stops at genuinely unsupported Apple operations with a precise actionable result, not with invented success.
 
 The final release checklist is in Phase 12. [Dogfooding-Headroom.md](Documentation/Dogfooding-Headroom.md) is the live acceptance procedure; [Sources.md](Documentation/Sources.md) documents the research baseline and its limitations.
-
-
----
 
 
 ---

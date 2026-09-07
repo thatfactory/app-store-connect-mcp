@@ -1,0 +1,105 @@
+---
+name: Publish to npm
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Published GitHub release tag to publish to npm
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Resolve Release
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.release.outputs.sha }}
+    steps:
+      - name: Resolve Published Release Tag
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          case "$RELEASE_TAG" in
+            ''|*[!0-9A-Za-z._-]*)
+              echo "Release tag contains unsupported characters"
+              exit 1
+              ;;
+          esac
+
+          REF_PATH="repos/$GITHUB_REPOSITORY/git/ref/tags/$RELEASE_TAG"
+          read -r OBJECT_SHA OBJECT_TYPE < <(
+            gh api "$REF_PATH" --jq '.object | [.sha, .type] | @tsv'
+          )
+          if [ "$OBJECT_TYPE" = "tag" ]; then
+            TAG_PATH="repos/$GITHUB_REPOSITORY/git/tags/$OBJECT_SHA"
+            read -r OBJECT_SHA OBJECT_TYPE < <(
+              gh api "$TAG_PATH" --jq '.object | [.sha, .type] | @tsv'
+            )
+          fi
+          if [ "$OBJECT_TYPE" != "commit" ]; then
+            echo "Release tag does not resolve directly to a commit"
+            exit 1
+          fi
+          if [ "$OBJECT_SHA" != "$GITHUB_SHA" ]; then
+            echo "Release tag must resolve to the protected main dispatch commit"
+            exit 1
+          fi
+
+          RELEASE_PATH="repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG"
+          if [ "$(gh api "$RELEASE_PATH" --jq '.draft')" != "false" ]; then
+            echo "GitHub release is absent or still a draft"
+            exit 1
+          fi
+          echo "sha=$OBJECT_SHA" >> "$GITHUB_OUTPUT"
+
+  publish:
+    name: Publish Package
+    needs: preflight
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout Immutable Release Commit
+        uses: actions/checkout@v6
+        with:
+          clean: true
+          ref: ${{ needs.preflight.outputs.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Validate Package
+        run: npm run check
+
+      - name: Verify Release Tag Matches package.json
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          if [ "$PACKAGE_VERSION" != "$RELEASE_TAG" ]; then
+            echo "Release tag $RELEASE_TAG does not match package.json version $PACKAGE_VERSION"
+            exit 1
+          fi
+
+      - name: Publish Package
+        run: npm publish --access public
