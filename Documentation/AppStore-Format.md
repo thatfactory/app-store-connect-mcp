@@ -46,7 +46,7 @@ AppStore/
       macOS/
         en-US/
           01-overview.png
-          02-weekly-budget.png
+          02-details.png
         de-DE/
         fr-FR/
         ja/
@@ -57,14 +57,13 @@ AppStore/
 
 ## 2. app.json
 
-Example for Headroom, with deliberately unresolved URL placeholders:
+Example for a sample app, with deliberately unresolved URL placeholders:
 
 ```json
 {
   "schemaVersion": 1,
   "app": {
-    "appStoreId": "6809208740",
-    "bundleId": "com.thatfactory.headroom",
+    "bundleId": "com.example.sample-app",
     "primaryLocale": "en-US"
   },
   "platforms": ["MAC_OS"],
@@ -74,12 +73,12 @@ Example for Headroom, with deliberately unresolved URL placeholders:
     "secondary": "DEVELOPER_TOOLS"
   },
   "defaults": {
-    "privacyPolicyUrl": "https://example.invalid/headroom/privacy"
+    "privacyPolicyUrl": "https://example.invalid/sample-app/privacy"
   }
 }
 ```
 
-`appStoreId` is optional during bootstrap, but when supplied it must agree with `bundleId`. Store Apple IDs as strings. `sku` is optional for an existing record; it is required in the manual-bootstrap payload for a new record and must be owner-supplied. Do not invent Headroom's existing SKU.
+`appStoreId` is optional during bootstrap, but when supplied it must agree with `bundleId`. Store Apple IDs as strings. `sku` is optional for an existing record; it is required in the manual-bootstrap payload for a new record and must be owner-supplied.
 
 `platforms` uses app-store platform values verified against the pinned schema. Directory names map through an explicit registry, for example `macOS -> MAC_OS` and `iOS -> IOS`. Bundle-registration platform values are a separate type. Version folder names and `versionString` must agree exactly; never parse version strings as decimals.
 
@@ -95,8 +94,8 @@ An optional `project` object can name a repository-relative project/workspace pa
 
 ```json
 {
-  "name": "Headroom: Weekly Usage",
-  "subtitle": "See your pace. Make it last."
+  "name": "Sample App",
+  "subtitle": "A concise sample subtitle."
 }
 ```
 
@@ -114,7 +113,7 @@ A privacy URL may be inherited from the explicitly declared shared default or ov
   "copyright": "2026 ThatFactory",
   "releaseType": "MANUAL",
   "defaults": {
-    "supportUrl": "https://example.invalid/headroom/support"
+    "supportUrl": "https://example.invalid/sample-app/support"
   }
 }
 ```
@@ -158,7 +157,7 @@ Scope-aware validation matters: a text-only plan for `de-DE` must not fail becau
 }
 ```
 
-This is an example of a login-required app, not a statement that these are Headroom's reviewed settings. The owner decides how App Review can access Headroom and whether demo-account fields are appropriate for its Codex sign-in flow.
+This is an example of a login-required app. The owner decides how App Review can access the app and whether demo-account fields are appropriate for its sign-in flow.
 
 `review-notes.txt` contains non-secret reviewer instructions and prerequisites. It maps to the `notes` field, including anything described in conversation as "Requirements." Do not write a separate unsupported requirements field. Notes are not localized per storefront and have their own byte limit.
 
@@ -176,7 +175,7 @@ Missing review secrets block only an operation that would write/use them, not un
   "sets": {
     "APP_DESKTOP": [
       "assets/screenshots/macOS/en-US/01-overview.png",
-      "assets/screenshots/macOS/en-US/02-weekly-budget.png"
+      "assets/screenshots/macOS/en-US/02-details.png"
     ]
   }
 }
@@ -216,7 +215,7 @@ A paid-app configuration may instead supply an exact decimal string for a custom
 
 For restricted distribution, support an explicit territory list, with exclusions if implemented as a clearly defined alternative. Mutually contradictory forms are validation errors. Requested availability does not assert regional eligibility or accept legal declarations.
 
-If commerce.json is absent or `commerce` is not selected, make no commerce changes. The default Headroom translation dogfood deliberately excludes this scope.
+If commerce.json is absent or `commerce` is not selected, make no commerce changes.
 
 ## 9. Provisioning
 
@@ -226,7 +225,7 @@ Optional `provisioning.json`:
 {
   "schemaVersion": 1,
   "primaryBundleId": {
-    "name": "Headroom",
+    "name": "Sample App",
     "platform": "MAC_OS",
     "capabilities": []
   },
