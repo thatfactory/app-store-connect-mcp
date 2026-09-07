@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://www.npmjs.com/package/@thatfactory/app-store-connect-mcp"><img alt="NPM" src="https://img.shields.io/badge/NPM-planned-CB3837.svg?logo=npm&logoColor=white"></a>
+  <a href="https://www.npmjs.com/package/@thatfactory/app-store-connect-mcp"><img alt="NPM" src="https://img.shields.io/badge/NPM-ready-CB3837.svg?logo=npm&logoColor=white"></a>
   <a href="https://developers.openai.com/codex/mcp"><img alt="Codex MCP" src="https://img.shields.io/badge/Codex-MCP-1F70C1.svg?logo=icloud&logoColor=white"></a>
   <a href="https://docs.anthropic.com/en/docs/claude-code/mcp"><img alt="Claude MCP" src="https://img.shields.io/badge/Claude-MCP-D97757.svg?logo=claude&logoColor=white"></a>
   <a href="https://en.wikipedia.org/wiki/MIT_License"><img alt="License" src="https://img.shields.io/badge/License-MIT-67ac5b.svg?logo=googledocs&logoColor=white"></a>
@@ -15,7 +15,7 @@ MCP server for managing Apple's App Store Connect. 📦
 
 Keep App Store metadata and localized screenshot sources beside your application code. Let an MCP-capable agent inspect the account, validate the repository, show a concrete change plan, and apply the approved changes through Apple's documented APIs.
 
-## Intended first release
+## Supported scope
 
 - Register bundle IDs and reconcile explicitly requested capabilities. Inspect an Xcode project to propose the identifiers and capabilities it needs.
 - Discover existing App Store app records, prepare the manual bootstrap for a missing record, and create editable platform versions.
@@ -36,11 +36,13 @@ Media Manager is not treated as a separate cloud library. Files are assigned to 
 
 Uploading a privacy-policy URL does not complete Apple's privacy questionnaire. Builds, age ratings, export-compliance declarations, agreements, and regional requirements can still block submission. The server must report those blockers rather than invent answers.
 
-## Intended setup
+## Requirements and setup
 
 Runtime target: Node.js 24 LTS. Xcode inspection is macOS-only; ordinary API and manifest operations should also work on Linux. A local checkout of the app repository must be accessible to the server process.
 
-After publication, the intended MCP launch is:
+Requirements: macOS for screenshot decoding and signing CSR validation, Node.js 24 or later, an MCP client, an accessible local app checkout, and App Store Connect API credentials for remote tools. Offline validation needs no credentials.
+
+The packaged MCP launch is:
 
 ```sh
 npx -y @thatfactory/app-store-connect-mcp --allowed-root /absolute/path/to/app-repository
@@ -59,6 +61,44 @@ Use the same credentials as `xcode-cloud-mcp`:
 The private key accepts literal multiline PEM or escaped `\n`. A present primary variable wins over its alias; malformed or blank primary values fail clearly rather than silently selecting a different identity. The server does not read a repository `.env` automatically. Supply credentials through the MCP host or the process environment.
 
 Credential compatibility does not imply permission compatibility. A key that can read Xcode Cloud might lack permission for provisioning or app metadata. The server reports authorization failures with the affected resource and operation.
+
+Codex setup:
+
+```sh
+codex mcp add app-store-connect \
+  --env APPSTORE_CONNECT_API_KEY_ID="$APPSTORE_CONNECT_API_KEY_ID" \
+  --env APPSTORE_CONNECT_API_ISSUER_ID="$APPSTORE_CONNECT_API_ISSUER_ID" \
+  --env APPSTORE_CONNECT_API_KEY_CONTENT="$APPSTORE_CONNECT_API_KEY_CONTENT" \
+  -- npx -y @thatfactory/app-store-connect-mcp \
+  --allowed-root /absolute/path/to/app-repository
+```
+
+Claude setup:
+
+```sh
+claude mcp add app-store-connect \
+  --env APPSTORE_CONNECT_API_KEY_ID="$APPSTORE_CONNECT_API_KEY_ID" \
+  --env APPSTORE_CONNECT_API_ISSUER_ID="$APPSTORE_CONNECT_API_ISSUER_ID" \
+  --env APPSTORE_CONNECT_API_KEY_CONTENT="$APPSTORE_CONNECT_API_KEY_CONTENT" \
+  -- npx -y @thatfactory/app-store-connect-mcp \
+  --allowed-root /absolute/path/to/app-repository
+```
+
+Add `--allow-writes` only for reviewed synchronization plans. Add `--allow-submission` together with `--allow-writes` only when review submission is genuinely intended.
+
+## Available tools
+
+| Area | Tools |
+| --- | --- |
+| Capabilities and local format | `get_capabilities`, `validate_repository` |
+| Discovery and export | `list_apps`, `get_app_store_state`, `export_app_store_state`, `prepare_app_record` |
+| Plan execution | `apply_plan`, `get_operation_status` |
+| Identifiers and metadata | `get_bundle_id_state`, `inspect_xcode_project`, `plan_provisioning_changes`, `plan_metadata_changes` |
+| Screenshots and commerce | `plan_screenshot_changes`, `plan_commerce_changes` |
+| Signing resources | `get_provisioning_resources`, `plan_signing_changes`, `download_signing_artifact` |
+| Release | `check_release_readiness`, `plan_submission`, `submit_for_review` |
+
+Every remote mutation starts from a fresh immutable plan. The host must approve the exact digest and operation IDs. `submit_for_review` additionally requires every operation in a submission-only plan; ordinary `apply_plan` rejects submission actions.
 
 ## Repository layout
 
@@ -107,13 +147,24 @@ See [the format specification](Documentation/AppStore-Format.md) for defaults, o
 
 > Inspect the app target and propose any missing bundle IDs or portal capabilities. Do not change the Xcode project or register anything yet.
 
+## Troubleshooting and evidence
+
+- `authenticationRequired` means the three primary credential variables are missing or unusable. Compatibility aliases are accepted, but a present malformed primary value fails instead of falling back.
+- `permissionDenied` means the authenticated key cannot access the selected resource or operation. It is not treated as an absent app or empty collection.
+- `stalePlan` means local inputs, secrets, account identity, target, rules, or relevant live state changed. Create and review a fresh plan; never edit a saved plan artifact.
+- `outcomeUnknown` means a write may have reached Apple but its exact postcondition was not proven. Poll `get_operation_status`; do not replay the write or continue unattempted operations.
+- Screenshot validation requires macOS, Swift, and ImageIO. Supply original RGB PNG/JPEG bytes with supported App Store dimensions; Git LFS pointers, alpha, transforms, and placeholders fail closed.
+- Signing never accepts private keys. Developer ID certificate creation remains in Xcode or the Apple Developer website. Artifact downloads require a new path under an approved root.
+
+The [release-candidate evidence](Documentation/Acceptance-Phase-12.md) separates live, synthetic, and pending acceptance. In particular, genuine localized Headroom screenshots were not supplied, signing mutations remain mocked, and no review submission was made without genuine release intent.
+
 ## Development and documentation
 
 Run `npm ci` and `npm run check` for strict type checking, tests, build, and a clean packed-package MCP smoke test. Run `node dist/index.js --help` for local launch options. CI and nightly execute the same checks on Node 24 without Apple credentials.
 
 [Product](Documentation/Product.md) explains the longer-term vision. [Architecture](Documentation/Architecture.md) defines internal boundaries. [Execution plan](Documentation/ExecutionPlan/README.md) breaks implementation into reviewable changes. [Sources](Documentation/Sources.md) records the research baseline.
 
-Planned distribution: public scoped npm package, MIT license, GitHub release publishing with trusted publishing where configured. Keep all customer repositories, credentials, exported review information, and signing artifacts out of the package tarball.
+Distribution target: public scoped npm package, MIT license, and GitHub release publishing through npm trusted publishing. See [release and initial publisher setup](Documentation/Release.md). Keep all customer repositories, credentials, exported review information, and signing artifacts out of the package tarball.
 
 This is an independent project and is not affiliated with or endorsed by Apple.
 
@@ -121,9 +172,9 @@ This is an independent project and is not affiliated with or endorsed by Apple.
 
 Start with `--allowed-root /absolute/path/to/checkout`, then call `validate_repository` with the absolute AppStore directory as `root`. Optional `domains`, `locales`, `platform` (directory spelling, such as `macOS`) and `version` limit the check. Domains: `appInfo`, `versionMetadata`, `version`, `review`, `screenshots`, `commerce`, `provisioning`. With no selector, validation considers declared platforms and discovered versions.
 
-The initial locale registry covers en-US, de-DE, fr-FR, ja and pt-BR. Other Apple-supported locales require registry expansion. Validation preserves omission/null/empty values; it does not determine creation completeness or release readiness. JSON schema checks, paths, text budgets and screenshot manifests are implemented; decoded image validation remains Phase 07. Review environment references are field-allowlisted and resolved values never appear in results. Character checks use conservative UTF-16 units and report code points/graphemes/UTF-8 bytes for prose. No URLs are fetched.
+The initial locale registry covers en-US, de-DE, fr-FR, ja and pt-BR. Other Apple-supported locales require registry expansion. Validation preserves omission/null/empty values; release readiness is a separate remote check. JSON schema checks, paths, text budgets, screenshot manifests, and native decoded-image validation are implemented. Review environment references are field-allowlisted and resolved values never appear in results. Character checks use conservative UTF-16 units and report code points/graphemes/UTF-8 bytes for prose. Metadata URLs are not fetched.
 
-The validator bounds each text/JSON file to 1 MiB, each referenced asset to 32 MiB, total read bytes to 64 MiB and files to 2000 per request. Results include up to 200 diagnostics and explicitly report truncation. Use narrower selectors for larger roots. The [synthetic example](examples/minimal/README.md) validates structurally but is not a ready-to-submit listing. Run `npm run schemas:check` to verify published schemas match the runtime validators.
+The validator bounds each text/JSON file to 1 MiB, each referenced asset to 32 MiB, total read bytes to 64 MiB and files to 2000 per request. Results include up to 200 diagnostics and explicitly report truncation. API pagination, account inventories, plans, transfer instructions, output bodies, and operation counts also have fixed limits and fail closed when completeness cannot be established. Use narrower selectors for larger roots. The [synthetic example](examples/minimal/README.md) validates structurally but is not a ready-to-submit listing. Run `npm run schemas:check` to verify published schemas match the runtime validators.
 
 ## Read and export tools
 

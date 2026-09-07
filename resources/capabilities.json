@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "stage": "readiness-submission",
+  "stage": "release-candidate",
   "tools": [
     "get_capabilities",
     "validate_repository",
