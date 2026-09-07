@@ -1,6 +1,6 @@
 # Capability and delivery status
 
-Phases 00–07 are merged. Phase 06 provides selected localized metadata, version and review plans through the same approved engine. Phase 08 provides approved screenshot set reconciliation. Commerce, broader signing helpers and submission remain pending. Live acceptance is recorded separately from mock coverage.
+Phases 00–08 are merged. Phase 06 provides selected localized metadata, version and review plans through the same approved engine. Phase 08 provides approved screenshot set reconciliation. Phase 09 adds exact base-price plans and read-only availability comparison. Broader signing helpers and submission remain pending. Live acceptance is recorded separately from mock coverage.
 
 | Phase | Capability | Status |
 | --- | --- | --- |
@@ -12,8 +12,8 @@ Phases 00–07 are merged. Phase 06 provides selected localized metadata, versio
 | 05 | Bounded identifiers/capabilities and static Xcode proposals | Merged PR #6; Headroom no-op read verified |
 | 06 | Localized text and explicit shared metadata | Merged PR #7; Headroom four-locale sync verified |
 | 07 | Decoded screenshot validation and internal transfer lifecycle | Merged PR #8; synthetic coverage only |
-| 08 | Approved localized screenshot sets and order | Implemented candidate; live originals pending |
-| 09 | Base price and availability | Pending |
+| 08 | Approved localized screenshot sets and order | Merged PR #9; live originals pending |
+| 09 | Exact base price and availability comparison | Implemented candidate; Headroom reads verified |
 | 10–11 | Provisioning helpers, guarded submission | Pending |
 | 12 | Headroom acceptance and release packaging | Pending |
 

@@ -19,8 +19,8 @@ export class PlanEngine {
   #stamp():string{return new Date(this.now()).toISOString();}
   #binding(snapshot:Snapshot):unknown{const {remote:_,...binding}=snapshot;return binding;}
   #equal(a:unknown,b:unknown):boolean{return this.#hash(a)===this.#hash(b);}
-  #public(plan:Plan):Record<string,unknown>{
-    return {planId:plan.id,digest:plan.digest,createdAt:new Date(plan.createdAt).toISOString(),expiresAt:new Date(plan.expiresAt).toISOString(),target:plan.snapshot.target,rulesVersion:plan.snapshot.rulesVersion,
+  #public(plan:Plan,adapter:Adapter):Record<string,unknown>{
+    return {...(adapter.summary?{summary:adapter.summary(plan.snapshot)}:{}),planId:plan.id,digest:plan.digest,createdAt:new Date(plan.createdAt).toISOString(),expiresAt:new Date(plan.expiresAt).toISOString(),target:plan.snapshot.target,rulesVersion:plan.snapshot.rulesVersion,
       operations:plan.operations.map(operation=>({id:operation.id,domain:operation.domain,kind:operation.kind,key:operation.key,scope:operation.scope,dependencies:operation.dependencies,sensitive:operation.sensitive,
         before:operation.sensitive?'[redacted]':operation.before,after:operation.sensitive?'[redacted]':operation.after})),noOp:plan.operations.length===0};
   }
@@ -46,7 +46,7 @@ export class PlanEngine {
     const plan=freeze({...unsigned,digest:this.#hash(unsigned)});
     const journal:Journal={planId:id,digest:plan.digest,state:'planned',operations:operations.map(operation=>({id:operation.id,approved:false,state:'notStarted',updatedAt:this.#stamp()})),updatedAt:this.#stamp()};
     const store=await JournalStore.create(root,this.allowedRoots);
-    const publicPlan=this.#public(plan);const planPath=await store.save(id,'plan',publicPlan);await store.save(id,'journal',journal);
+    const publicPlan=this.#public(plan,adapter);const planPath=await store.save(id,'plan',publicPlan);await store.save(id,'journal',journal);
     this.#records.set(id,{plan,adapter,store,journal,consumed:false});
     return {...publicPlan,planPath};
   }

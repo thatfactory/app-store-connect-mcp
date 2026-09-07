@@ -27,6 +27,7 @@ export interface Adapter {
   capture(signal?:AbortSignal):Promise<Snapshot>;
   propose(snapshot:Snapshot):Operation[];
   execute(operation:Readonly<Operation>,signal?:AbortSignal):Promise<void>;
+  summary?(snapshot:Snapshot):Json;
   remoteIds?(operation:Readonly<Operation>,snapshot:Snapshot):string[];
   verify(operation:Readonly<Operation>,snapshot:Snapshot):boolean;
 }
