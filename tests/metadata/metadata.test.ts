@@ -46,7 +46,7 @@ async function fixture(t:test.TestContext){
     const adapter=new MetadataAdapter({root,platform:'macOS',version:'1.0',locales:selectedLocales,domains,manageCategories},[checkout],api,()=> 'account',env);
     const p=await engine.create(adapter);const approval:Approval={planId:p.planId as string,digest:p.digest as string,operationIds:(p.operations as Operation[]).map(op=>op.id),authorization:{confirmedByHost:true}};return {p,approval,adapter};
   };
-  return {checkout,root,prefix,state,calls,engine,plan,env,version,info};
+  return {checkout,root,prefix,state,calls,engine,plan,env,version,info,api};
 }
 test('four-locale text sync independently creates both families and preserves en-US/shared fields',async t=>{
   const f=await fixture(t);const english=JSON.stringify([f.state.infoLocales[0],f.state.textLocales[0]]);const {p,approval}=await f.plan();assert.equal((p.operations as Operation[]).length,8);
@@ -80,6 +80,11 @@ test('review secrets are injected only during approved execution and secret chan
   const f=await fixture(t);f.env.APPSTORE_REVIEW_DEMO_PASSWORD='secret-one';await file(f.root,`${f.prefix}/review.json`,{demoAccountRequired:true,demoAccountName:'reviewer',demoAccountPassword:{env:'APPSTORE_REVIEW_DEMO_PASSWORD'}});
   const {p,approval}=await f.plan(['review'],['en-US']);assert.ok(!JSON.stringify(p).includes('secret-one'));f.env.APPSTORE_REVIEW_DEMO_PASSWORD='secret-two';await assert.rejects(f.engine.apply(approval),/Local inputs/);
   const next=await f.plan(['review'],['en-US']);assert.equal((await f.engine.apply(next.approval)).state,'complete');assert.equal(f.calls.filter(c=>c.method==='POST')[0]?.body.data.attributes.demoAccountPassword,'secret-two');assert.equal((await f.plan(['review'],['en-US'])).p.noOp,true);
+});
+test('read-only review comparison remains available after the version becomes noneditable',async t=>{
+  const f=await fixture(t);await file(f.root,`${f.prefix}/review.json`,{contactFirstName:'Ada',contactLastName:'Lovelace',contactPhone:'+49 30 123456',contactEmail:'review@example.test',demoAccountRequired:false});f.state.review={id:'R1',type:'appStoreReviewDetails',attributes:{contactFirstName:'Ada',contactLastName:'Lovelace',contactPhone:'+49 30 123456',contactEmail:'review@example.test',demoAccountRequired:false}};f.version.attributes.appVersionState='WAITING_FOR_REVIEW';
+  const adapter=new MetadataAdapter({root:f.root,platform:'macOS',version:'1.0',locales:['en-US'],domains:['review'],manageCategories:false},[f.checkout],f.api,()=> 'account',f.env);
+  assert.equal(await adapter.reviewDrift(),false);f.state.review.attributes.contactFirstName='Changed';assert.equal(await adapter.reviewDrift(),true);await assert.rejects(adapter.capture(),/not in a supported editable state/);
 });
 
 test('all five explicitly selected locales can be updated and then produce a no-op',async t=>{

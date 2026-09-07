@@ -119,6 +119,12 @@ test('ordinary apply rejects submission and adapter models reject unsafe depende
   f.adapter.propose=s=>propose(s).map(op=>({...op,dependencies:['missing']}));await assert.rejects(f.create(),code('invalidPlan'));
   f.adapter.propose=s=>propose(s).map(op=>({...op,domain:'injected'}));await assert.rejects(f.create(),code('invalidPlan'));assert.equal(f.writes.length,0);
 });
+test('submission requires its independent flag and the complete submission-only plan',async t=>{
+  const f=await fixture(t);const propose=f.adapter.propose;f.adapter.propose=s=>propose(s).map(op=>({...op,kind:'submission'}));const {approval}=await f.create();
+  await assert.rejects(f.engine.submit(approval,false),code('submissionDisabled'));
+  await assert.rejects(f.engine.submit({...approval,operationIds:[approval.operationIds[0]!]},true),code('invalidSubmissionApproval'));
+  assert.equal((await f.engine.submit(approval,true)).state,'complete');assert.equal(f.writes.length,2);
+});
 test('symlinked journal directory is rejected before creating artifacts',async t=>{
   const f=await fixture(t);await symlink(f.root,path.join(f.checkout,'.appstore-connect-mcp'));await assert.rejects(f.create(),code('unsafePath'));
 });
