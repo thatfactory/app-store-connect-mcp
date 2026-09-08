@@ -96,9 +96,19 @@ export class ScreenshotUploader{
       if(signal?.aborted){receipt.stage='cancelled';await this.#save(receipt);return receipt;}
       try{const current=await this.#read(receipt,pollSignal);
         if(current.state==='FAILED'){receipt.stage='failed';receipt.code='assetProcessingFailed';receipt.diagnosticCodes=current.diagnosticCodes;await this.#save(receipt);return receipt;}
-        if(current.state==='COMPLETE'){if(current.checksum!==receipt.md5){receipt.stage='failed';receipt.code='checksumMismatch';}else{receipt.stage='complete';delete receipt.code;}await this.#save(receipt);return receipt;}
+        if(current.state==='COMPLETE'){
+          // Processing state can become visible before the source checksum. Keep
+          // polling read-only; absence is neither verified success nor corruption.
+          if(current.checksum===undefined){receipt.stage='processing';receipt.code='checksumPending';}
+          else{if(current.checksum!==receipt.md5){receipt.stage='failed';receipt.code='checksumMismatch';}else{receipt.stage='complete';delete receipt.code;}await this.#save(receipt);return receipt;}
+        }
         if(current.state==='UPLOAD_COMPLETE'&&current.checksum===receipt.md5){receipt.stage='processing';delete receipt.code;}
-      }catch(error){receipt.code=error instanceof AppStoreError?error.code:'processingReadFailed';break;}
+      }catch(error){
+        if(signal?.aborted){receipt.stage='cancelled';receipt.code='cancelled';}
+        else if(pollSignal.aborted){receipt.code='screenshotProcessingPending';}
+        else receipt.code=error instanceof AppStoreError?error.code:'processingReadFailed';
+        break;
+      }
       if(Date.now()>=deadline)break;await delay(Math.min(this.options.pollMs??1000,Math.max(0,deadline-Date.now())),undefined,signal?{signal}:{}).catch(()=>{});
     }while(Date.now()<deadline&&++reads<60);
     await this.#save(receipt);return receipt;

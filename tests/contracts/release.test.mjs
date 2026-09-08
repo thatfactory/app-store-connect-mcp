@@ -17,5 +17,5 @@ test('publish workflow requires a protected exact published tag and immutable co
 
 test('release candidate documents the one-time registry bootstrap without claiming publication',async()=>{
   const packageJson=JSON.parse(await readFile(new URL('../../package.json',import.meta.url),'utf8'));const readme=await readFile(new URL('../../README.md',import.meta.url),'utf8');const release=await readFile(new URL('../../Documentation/Release.md',import.meta.url),'utf8');
-  assert.equal(packageJson.version,'1.0.0');assert.match(release,/tag `1\.0\.0`/);assert.match(release,/one-time owner-authenticated npm CLI session/);assert.match(release,/package to exist before a trusted publisher/);assert.match(release,/explicitly enable the trusted publisher's direct `npm publish` permission/);assert.match(release,/separate owner authorization/);assert.match(readme,/not published/);assert.match(readme,/NPM-ready/);
+  assert.equal(packageJson.version,'0.1.0');assert.match(release,/tag `0\.1\.0`/);assert.match(release,/one-time owner-authenticated npm CLI session/);assert.match(release,/package to exist before a trusted publisher/);assert.match(release,/explicitly enable the trusted publisher's direct `npm publish` permission/);assert.match(release,/separate owner authorization/);assert.match(readme,/not published/);assert.match(readme,/NPM-ready/);
 });

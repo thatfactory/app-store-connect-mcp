@@ -14,7 +14,7 @@ try {
   const executable = path.join(folder,'node_modules/@thatfactory/app-store-connect-mcp/dist/index.js');
   if (process.platform !== 'win32') assert.ok(statSync(executable).mode & 0o111);
   assert.match(execFileSync(process.execPath,[executable,'--help'],{cwd:folder,encoding:'utf8'}),/stdio/);
-  assert.equal(execFileSync(process.execPath,[executable,'--version'],{cwd:folder,encoding:'utf8'}).trim(),'1.0.0');
+  assert.equal(execFileSync(process.execPath,[executable,'--version'],{cwd:folder,encoding:'utf8'}).trim(),'0.1.0');
   const appRoot = path.join(folder, 'AppStore');
   mkdirSync(appRoot);
   writeFileSync(path.join(appRoot, 'app.json'), JSON.stringify({schemaVersion:1,app:{bundleId:'com.example.synthetic',primaryLocale:'en-US'},platforms:['MAC_OS'],localizations:['en-US']}));

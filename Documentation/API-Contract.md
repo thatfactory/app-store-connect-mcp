@@ -31,7 +31,7 @@ All list adapters must enumerate bounded same-origin next links, detect cycles a
 
 ## Asset security
 
-Apple's asset guide defines offsets and lengths in bytes and permits retrying failed transfer parts. Verify exact coverage and unchanged source bytes. Storage requests never contain ASC authorization. HTTPS, no userinfo, public destination, bounded headers and no redirects are required. The official example uses a blobstore.apple.com host; this is evidence for that suffix, not all storage providers. Other host families remain conditional until separately audited. Never infer safety from an Apple-looking substring.
+Apple's asset guide defines offsets and lengths in bytes and permits retrying failed transfer parts. Verify exact coverage and unchanged source bytes. Storage requests never contain ASC authorization. HTTPS, no userinfo, public destination, bounded headers and no redirects are required. The official example uses a `blobstore.apple.com` host, and a live App Store Connect screenshot reservation used `northamerica-1.object-storage.apple.com`; these are evidence for those exact suffix families, not all storage providers. Other host families remain conditional until separately audited. Never infer safety from an Apple-looking substring.
 
 ## Evidence levels
 
