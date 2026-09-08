@@ -69,7 +69,7 @@ test('COMPLETE without a checksum stays pending until read-only reconciliation v
  for(const missing of [null,undefined]){
   f.images[0].attributes.sourceFileChecksum=missing;
   const pending=await f.uploader.poll({...initial,stage:'processing'});
-  assert.equal(pending.stage,'processing');assert.equal(pending.code,'checksumPending');
+  assert.equal(pending.stage,'processing');assert.equal(pending.code,'screenshotProcessingPending');
   f.images[0].attributes.sourceFileChecksum=f.identity.md5;
   const verified=await f.uploader.poll(pending);
   assert.equal(verified.stage,'complete');assert.equal(verified.code,undefined);
@@ -111,4 +111,22 @@ test('processing deadline is pending, while host cancellation is cancelled',asyn
    assert.equal(pending.code,cancelHost?'cancelled':'screenshotProcessingPending');
   }finally{clearTimeout(keepAlive);}
  }
+});
+
+test('prompt pending reads report pending at both the time and read-count bounds',async t=>{
+ const f=await fixture(t);const initial=await f.start();f.images[0].attributes.assetDeliveryState={state:'UPLOAD_COMPLETE'};
+ for(const timeout of [0,60000]){
+  let reads=0;
+  const api=new ApiClient({token:()=> 'fixture'},{fetch:async()=>{reads++;return Response.json({data:f.images[0]});}});
+  const uploader=new ScreenshotUploader(api,{transfer:async()=>assert.fail('no transfer')},f.journal,true,{pollTimeoutMs:timeout,pollMs:0});
+  const result=await uploader.poll({...initial,stage:'processing'});
+  assert.equal(result.stage,'processing');assert.equal(result.code,'screenshotProcessingPending');
+  assert.equal(reads,timeout===0?1:60);
+ }
+});
+
+test('pre-aborted polling clears stale diagnostics without a remote read',async t=>{
+ const f=await fixture(t);const initial=await f.start();const reads=f.calls.length;const controller=new AbortController();controller.abort();
+ const result=await f.uploader.poll({...initial,stage:'processing',code:'checksumMismatch'},controller.signal);
+ assert.equal(result.stage,'cancelled');assert.equal(result.code,'cancelled');assert.equal(f.calls.length,reads);
 });

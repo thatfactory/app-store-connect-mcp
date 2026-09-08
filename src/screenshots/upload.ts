@@ -93,13 +93,13 @@ export class ScreenshotUploader{
     const timeout=this.options.pollTimeoutMs??30000;const deadline=Date.now()+timeout;let reads=0;
     const pollSignal=AbortSignal.any([...(signal?[signal]:[]),AbortSignal.timeout(timeout===0?30000:timeout)]);
     do{
-      if(signal?.aborted){receipt.stage='cancelled';await this.#save(receipt);return receipt;}
+      if(signal?.aborted){receipt.stage='cancelled';receipt.code='cancelled';await this.#save(receipt);return receipt;}
       try{const current=await this.#read(receipt,pollSignal);
         if(current.state==='FAILED'){receipt.stage='failed';receipt.code='assetProcessingFailed';receipt.diagnosticCodes=current.diagnosticCodes;await this.#save(receipt);return receipt;}
         if(current.state==='COMPLETE'){
           // Processing state can become visible before the source checksum. Keep
           // polling read-only; absence is neither verified success nor corruption.
-          if(current.checksum===undefined){receipt.stage='processing';receipt.code='checksumPending';}
+          if(current.checksum===undefined){receipt.stage='processing';}
           else{if(current.checksum!==receipt.md5){receipt.stage='failed';receipt.code='checksumMismatch';}else{receipt.stage='complete';delete receipt.code;}await this.#save(receipt);return receipt;}
         }
         if(current.state==='UPLOAD_COMPLETE'&&current.checksum===receipt.md5){receipt.stage='processing';delete receipt.code;}
@@ -107,10 +107,12 @@ export class ScreenshotUploader{
         if(signal?.aborted){receipt.stage='cancelled';receipt.code='cancelled';}
         else if(pollSignal.aborted){receipt.code='screenshotProcessingPending';}
         else receipt.code=error instanceof AppStoreError?error.code:'processingReadFailed';
-        break;
+        await this.#save(receipt);return receipt;
       }
       if(Date.now()>=deadline)break;await delay(Math.min(this.options.pollMs??1000,Math.max(0,deadline-Date.now())),undefined,signal?{signal}:{}).catch(()=>{});
     }while(Date.now()<deadline&&++reads<60);
+    if(signal?.aborted){receipt.stage='cancelled';receipt.code='cancelled';}
+    else receipt.code='screenshotProcessingPending';
     await this.#save(receipt);return receipt;
   }
 }

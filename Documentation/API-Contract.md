@@ -35,7 +35,7 @@ Apple's asset guide defines offsets and lengths in bytes and permits retrying fa
 
 ## Evidence levels
 
-All inventory entries are schemaVerified. Resource behavior linked in Sources is documented. Phase 00 tests check reproducibility, references and representative payload shape; these are not adapter integration tests. Every adapter must add valid/invalid contract fixtures and behavior tests before fixtureTested is promoted. All domains are liveVerified=false. Conditional writes cannot be exposed before the corresponding phase resolves and tests its conditions.
+All inventory entries are schemaVerified. Resource behavior linked in Sources is documented. Phase 00 tests check reproducibility, references and representative payload shape; these are not adapter integration tests. Every adapter must add valid/invalid contract fixtures and behavior tests before fixtureTested is promoted. The initial schema inventory records liveVerified=false; it describes schema-audit evidence, not subsequent adapter acceptance. Current scenario-level live evidence is listed in resources/capabilities.json and Documentation/Release.md, including macOS screenshot checksum, order and no-op reconciliation. This does not promote all operations in a domain to live verification. Conditional writes cannot be exposed before the corresponding phase resolves and tests its conditions.
 
 ## Availability semantic boundary
 
