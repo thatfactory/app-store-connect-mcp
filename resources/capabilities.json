@@ -39,7 +39,8 @@
     "redacted export",
     "multi-locale metadata synchronization",
     "unmanaged-locale preservation and repeated metadata no-op",
-    "free price and configured-territory readback"
+    "free price and configured-territory readback",
+    "macOS screenshot synchronization with verified checksums, order and no-op reconciliation"
   ],
   "planEngineImplemented": true,
   "provisioningCapabilities": [

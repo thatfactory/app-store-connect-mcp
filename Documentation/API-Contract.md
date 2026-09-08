@@ -31,11 +31,11 @@ All list adapters must enumerate bounded same-origin next links, detect cycles a
 
 ## Asset security
 
-Apple's asset guide defines offsets and lengths in bytes and permits retrying failed transfer parts. Verify exact coverage and unchanged source bytes. Storage requests never contain ASC authorization. HTTPS, no userinfo, public destination, bounded headers and no redirects are required. The official example uses a blobstore.apple.com host; this is evidence for that suffix, not all storage providers. Other host families remain conditional until separately audited. Never infer safety from an Apple-looking substring.
+Apple's asset guide defines offsets and lengths in bytes and permits retrying failed transfer parts. Verify exact coverage and unchanged source bytes. Storage requests never contain ASC authorization. HTTPS, no userinfo, public destination, bounded headers and no redirects are required. The official example uses a `blobstore.apple.com` host, and a live App Store Connect screenshot reservation used `northamerica-1.object-storage.apple.com`; these are evidence for those exact suffix families, not all storage providers. Other host families remain conditional until separately audited. Never infer safety from an Apple-looking substring.
 
 ## Evidence levels
 
-All inventory entries are schemaVerified. Resource behavior linked in Sources is documented. Phase 00 tests check reproducibility, references and representative payload shape; these are not adapter integration tests. Every adapter must add valid/invalid contract fixtures and behavior tests before fixtureTested is promoted. All domains are liveVerified=false. Conditional writes cannot be exposed before the corresponding phase resolves and tests its conditions.
+All inventory entries are schemaVerified. Resource behavior linked in Sources is documented. Phase 00 tests check reproducibility, references and representative payload shape; these are not adapter integration tests. Every adapter must add valid/invalid contract fixtures and behavior tests before fixtureTested is promoted. The initial schema inventory records liveVerified=false; it describes schema-audit evidence, not subsequent adapter acceptance. Current scenario-level live evidence is listed in resources/capabilities.json and Documentation/Release.md, including macOS screenshot checksum, order and no-op reconciliation. This does not promote all operations in a domain to live verification. Conditional writes cannot be exposed before the corresponding phase resolves and tests its conditions.
 
 ## Availability semantic boundary
 

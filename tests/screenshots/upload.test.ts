@@ -63,3 +63,70 @@ test('cancellation after a part retains its reservation and never commits',async
  const f=await fixture(t);const controller=new AbortController();f.controls.abortAfterPart=controller;
  const receipt=await f.start(controller.signal);assert.equal(receipt.stage,'cancelled');assert.equal(receipt.screenshotId,'IMAGE');assert.equal(f.parts.length,1);assert.equal(f.calls.filter(call=>call.method==='PATCH').length,0);
 });
+
+test('COMPLETE without a checksum stays pending until read-only reconciliation verifies it',async t=>{
+ const f=await fixture(t);const initial=await f.start();
+ for(const missing of [null,undefined]){
+  f.images[0].attributes.sourceFileChecksum=missing;
+  const pending=await f.uploader.poll({...initial,stage:'processing'});
+  assert.equal(pending.stage,'processing');assert.equal(pending.code,'screenshotProcessingPending');
+  f.images[0].attributes.sourceFileChecksum=f.identity.md5;
+  const verified=await f.uploader.poll(pending);
+  assert.equal(verified.stage,'complete');assert.equal(verified.code,undefined);
+ }
+ assert.equal(f.calls.filter(call=>call.method==='POST').length,1);
+ assert.equal(f.calls.filter(call=>call.method==='PATCH').length,1);
+});
+
+test('COMPLETE with a delayed checksum is verified within the bounded polling window',async t=>{
+ const f=await fixture(t);const initial=await f.start();f.images[0].attributes.sourceFileChecksum=null;
+ let reads=0;
+ const api=new ApiClient({token:()=> 'fixture'},{fetch:async()=>{
+  if(++reads===2)f.images[0].attributes.sourceFileChecksum=f.identity.md5;
+  return Response.json({data:f.images[0]});
+ }});
+ const uploader=new ScreenshotUploader(api,{transfer:async()=>{assert.fail('poll must not transfer');}},f.journal,true,{pollMs:0,pollTimeoutMs:1000});
+ const result=await uploader.poll({...initial,stage:'processing'});
+ assert.equal(result.stage,'complete');assert.equal(result.code,undefined);assert.equal(reads,2);
+});
+
+test('processing deadline is pending, while host cancellation is cancelled',async t=>{
+ const f=await fixture(t);const initial=await f.start();
+ for(const cancelHost of [false,true]){
+  const controller=new AbortController();
+  const api=new ApiClient({token:()=> 'fixture'},{fetch:async(_input,options)=>{
+   if(cancelHost)controller.abort();
+   await new Promise<void>((_resolve,reject)=>{
+    const signal=options!.signal!;
+    if(signal.aborted)reject(signal.reason);
+    else signal.addEventListener('abort',()=>reject(signal.reason),{once:true});
+   });
+   throw new Error('unreachable');
+  }});
+  const uploader=new ScreenshotUploader(api,{transfer:async()=>assert.fail('no transfer')},f.journal,true,{pollTimeoutMs:20});
+  const keepAlive=setTimeout(()=>{},1000);
+  try{
+   const pending=await uploader.poll({...initial,stage:'processing'},controller.signal);
+   assert.equal(pending.stage,cancelHost?'cancelled':'processing');
+   assert.equal(pending.code,cancelHost?'cancelled':'screenshotProcessingPending');
+  }finally{clearTimeout(keepAlive);}
+ }
+});
+
+test('prompt pending reads report pending at both the time and read-count bounds',async t=>{
+ const f=await fixture(t);const initial=await f.start();f.images[0].attributes.assetDeliveryState={state:'UPLOAD_COMPLETE'};
+ for(const timeout of [0,60000]){
+  let reads=0;
+  const api=new ApiClient({token:()=> 'fixture'},{fetch:async()=>{reads++;return Response.json({data:f.images[0]});}});
+  const uploader=new ScreenshotUploader(api,{transfer:async()=>assert.fail('no transfer')},f.journal,true,{pollTimeoutMs:timeout,pollMs:0});
+  const result=await uploader.poll({...initial,stage:'processing'});
+  assert.equal(result.stage,'processing');assert.equal(result.code,'screenshotProcessingPending');
+  assert.equal(reads,timeout===0?1:60);
+ }
+});
+
+test('pre-aborted polling clears stale diagnostics without a remote read',async t=>{
+ const f=await fixture(t);const initial=await f.start();const reads=f.calls.length;const controller=new AbortController();controller.abort();
+ const result=await f.uploader.poll({...initial,stage:'processing',code:'checksumMismatch'},controller.signal);
+ assert.equal(result.stage,'cancelled');assert.equal(result.code,'cancelled');assert.equal(f.calls.length,reads);
+});

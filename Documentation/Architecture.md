@@ -1,6 +1,6 @@
 # Architecture
 
-Implementation contract for the `1.0.0` release candidate.
+Implementation contract for the `0.1.0` release candidate.
 
 Use strict TypeScript, Node 24+, ESM, the official MCP SDK and stdio. Keep stdout exclusively for protocol messages. API credentials are resolved lazily from the six documented environment names; never load a target checkout's environment file.
 

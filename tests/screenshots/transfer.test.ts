@@ -12,7 +12,8 @@ test('upload ranges require exact complete nonoverlapping coverage and safe head
   for(const ranges of [[raw(-1,8)],[raw(0,4),raw(3,4)],[raw(0,3),raw(4,3)],[raw(0,6)],[raw(0,8)],[{...raw(0,7),method:'POST'}],[{...raw(0,7),requestHeaders:[{name:'Authorization',value:'Bearer PRIVATE'}]}],[{...raw(0,7),requestHeaders:[{name:'Content-Length',value:'6'}]}]])assert.throws(()=>uploadOperations(ranges,7));
 });
 test('storage policy rejects redirects to unapproved hosts, local/IP destinations and special ranges',()=>{
-  for(const candidate of ['http://synthetic.blobstore.apple.com','https://blobstore.apple.com.evil.test','https://127.0.0.1','https://user:secret@synthetic.blobstore.apple.com','https://synthetic.blobstore.apple.com:444','https://synthetic.blobstore.apple.com/#x'])assert.throws(()=>storageUrl(candidate));
+  assert.equal(storageUrl('https://northamerica-1.object-storage.apple.com/upload?signature=PRIVATE').hostname,'northamerica-1.object-storage.apple.com');
+  for(const candidate of ['http://synthetic.blobstore.apple.com','https://blobstore.apple.com.evil.test','https://object-storage.apple.com.evil.test','https://127.0.0.1','https://user:secret@synthetic.blobstore.apple.com','https://synthetic.blobstore.apple.com:444','https://synthetic.blobstore.apple.com/#x'])assert.throws(()=>storageUrl(candidate));
   for(const ip of ['127.0.0.1','10.2.3.4','100.64.0.1','169.254.1.1','172.16.0.1','192.168.1.1','198.18.0.1','198.51.100.9','203.0.113.1','::1','::ffff:127.0.0.1','fc00::1','fe80::1','2001:0db8::1','2001:2::1','2002:a00::1','3fff::1'])assert.equal(isPublicAddress(ip),false,ip);
   for(const ip of ['17.1.2.3','93.184.216.34','2606:4700::1111','2a00:1450::1'])assert.equal(isPublicAddress(ip),true,ip);
 });

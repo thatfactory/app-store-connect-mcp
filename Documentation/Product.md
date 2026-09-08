@@ -102,7 +102,7 @@ Create a version directory with ordered references to existing assets. Change re
 
 Run readiness checks and resolve the exact build. Complete any owner-only requirements. Generate a new submission plan that includes release behavior. Obtain explicit authorization and submit; return the submission ID and observed state. Do not label a pending review "released."
 
-## 7. Success criteria for 1.0.0
+## 7. Success criteria for 0.1.0
 
 Configured locale listings can be applied from Git-owned content without overwriting unmanaged locales. Each configured locale has the intended ordered screenshots in the selected draft version. A second full synchronization makes zero remote mutations. Interruption recovery does not duplicate assets or versions.
 

@@ -1,13 +1,16 @@
 import assert from 'node:assert/strict';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-export async function protocolSmoke(command, args, cwd, appRoot) {
+export async function protocolSmoke(command, args, cwd, appRoot, expectedVersion) {
   const transport = new StdioClientTransport({command, args, cwd, env: {PATH: process.env.PATH || ''}, stderr: 'pipe'});
   let stderr = '';
   transport.stderr?.on('data', chunk => { stderr += chunk.toString(); });
   const client = new Client({name:'package-smoke',version:'1.0.0'});
   try {
     await client.connect(transport);
+    assert.equal(client.getServerVersion().version, expectedVersion);
+    const operations = await client.readResource({uri:"appstore-connect://operations"});
+    assert.equal(operations.contents[0].text.match(/Release candidate `([^`]+)`/)?.[1], expectedVersion);
     assert.deepEqual((await client.listTools()).tools.map(tool => tool.name), ['get_capabilities','validate_repository','list_apps','get_app_store_state','export_app_store_state','prepare_app_record', 'apply_plan', 'get_operation_status','get_bundle_id_state','inspect_xcode_project','plan_provisioning_changes','plan_metadata_changes','plan_screenshot_changes','plan_commerce_changes','get_provisioning_resources','plan_signing_changes','download_signing_artifact','check_release_readiness','plan_submission','submit_for_review']);
     const capabilities = await client.callTool({name:'get_capabilities',arguments:{}});
     assert.equal(capabilities.isError, undefined);

@@ -21,7 +21,8 @@ export function uploadOperations(raw:unknown,size:number):AssetUploadOperation[]
 export function storageUrl(input:string):URL{
   let url:URL;try{url=new URL(input);}catch{throw new AppStoreError('unsafeUploadUrl','Invalid storage destination.');}
   const host=url.hostname.toLowerCase();
-  if(url.protocol!=='https:'||url.username||url.password||url.hash||url.port||isIP(host)||!(host==='blobstore.apple.com'||host.endsWith('.blobstore.apple.com')))throw new AppStoreError('unsafeUploadUrl','Storage URL must use the audited Apple blobstore HTTPS host family; other families require a separate audit.');
+  const appleStorageHost=['blobstore.apple.com','object-storage.apple.com'].some(suffix=>host===suffix||host.endsWith(`.${suffix}`));
+  if(url.protocol!=='https:'||url.username||url.password||url.hash||url.port||isIP(host)||!appleStorageHost)throw new AppStoreError('unsafeUploadUrl','Storage URL must use an audited Apple storage HTTPS host family; other families require a separate audit.');
   return url;
 }
 export function isPublicAddress(address:string):boolean{
