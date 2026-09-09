@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://www.npmjs.com/package/@thatfactory/app-store-connect-mcp"><img alt="NPM" src="https://img.shields.io/badge/NPM-ready-CB3837.svg?logo=npm&logoColor=white"></a>
+  <a href="https://www.npmjs.com/package/@thatfactory/app-store-connect-mcp"><img alt="NPM" src="https://img.shields.io/npm/v/@thatfactory/app-store-connect-mcp?logo=npm&logoColor=white"></a>
   <a href="https://developers.openai.com/codex/mcp"><img alt="Codex MCP" src="https://img.shields.io/badge/Codex-MCP-1F70C1.svg?logo=icloud&logoColor=white"></a>
   <a href="https://docs.anthropic.com/en/docs/claude-code/mcp"><img alt="Claude MCP" src="https://img.shields.io/badge/Claude-MCP-D97757.svg?logo=claude&logoColor=white"></a>
   <a href="https://en.wikipedia.org/wiki/MIT_License"><img alt="License" src="https://img.shields.io/badge/License-MIT-67ac5b.svg?logo=googledocs&logoColor=white"></a>
@@ -151,6 +151,6 @@ npm run build
 node dist/index.js --allowed-root /absolute/path/to/app-repository
 ```
 
-The package is prepared for its initial npm release but is not published. See [Release](Documentation/Release.md) for maintainer instructions.
+The package is available on [npm](https://www.npmjs.com/package/@thatfactory/app-store-connect-mcp). Publishing a GitHub release automatically starts npm publication through trusted publishing. See [Release](Documentation/Release.md) for maintainer instructions.
 
 This is an independent project and is not affiliated with or endorsed by Apple.
