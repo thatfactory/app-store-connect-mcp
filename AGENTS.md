@@ -2,6 +2,13 @@
 
 Read [README](README.md), the affected tool contracts, and the validation scripts in `package.json` before changing behavior. This connector manages version-controlled App Store content and scoped remote operations. Preserve immutable plan identity, digests, approval scope, operation status, and no-replay recovery. Keep credentials, private reviewer details, signed upload URLs, and operation journals out of source, logs, and PRs. Code changes do not authorize App Store submissions or releases.
 
+## Implementation flow
+
+1. Read the applicable repository instructions and inspect the working tree. Make a focused change, review the diff, and run the relevant local checks.
+2. For pull requests, follow the managed Pull Request Lifecycle below. Merge and publish only within the task or standing repository authorization and after the applicable checks pass.
+3. After a merge, verify the merge commit and post-merge CI. For a direct push, verify that the intended commit reached the remote default branch. When the task includes a release, verify publication on the applicable registry or release channel.
+4. Before closing the task, return the original checkout to the default branch, fast-forward it from its upstream, and prune stale remote-tracking refs. Remove only task branches confirmed merged. For a squash merge, verify that the local branch tip matches the final head of the merged PR. Confirm remote branch removal when GitHub is configured to delete merged branches. Preserve unrelated work. If the checkout is dirty, another worktree uses the branch, or the default branch cannot fast-forward, stop the affected cleanup and report the blocker.
+
 ## Codex review configuration
 
 Automatic Codex PR review is enabled. Use all PR authors and the opening/ready trigger, keep exhaustive review off, and keep separate Security Review manual. Apply the managed lifecycle; do not request a duplicate manual review. The policy-validation hosting check is required for merge.
