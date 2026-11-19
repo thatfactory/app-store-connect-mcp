@@ -281,6 +281,35 @@ test('attaches iOS and tvOS exact builds after notes and auto-notify, reports Ap
   assert.equal(f.state.writes.length,5);
 });
 
+test('distributes exact macOS and visionOS builds and accepts iPad and Watch builds reported as IOS',async t=>{
+  const f=await fixture(t);
+  const targets = [
+    {buildId:'build-mac',platform:'MAC_OS',directory:'macOS'},
+    {buildId:'build-vision',platform:'VISION_OS',directory:'visionOS'},
+    {buildId:'build-ipad',platform:'IOS',directory:'iOS'},
+    {buildId:'build-watch',platform:'IOS',directory:'iOS'},
+  ];
+  await f.save('app.json',{
+    schemaVersion:1, app:{bundleId,appStoreId:'1234',primaryLocale:'en-US'},
+    platforms:['IOS','MAC_OS','TV_OS','VISION_OS'], localizations:['en-US'],
+  });
+  for (const {buildId, platform, directory} of targets) {
+    f.state.builds.set(buildId,mockBuild(buildId,platform));
+    await f.save(`testflight/build-notes/${directory}/1.0/en-US.txt`,`Test the ${directory} build.`);
+  }
+  const selected = targets.map(({buildId,platform})=>({buildId,platform}));
+  const args = {action:'attach',builds:selected,locales:['en-US']};
+  const plan = await f.distribution(args);
+  assert.deepEqual(plan.summary.builds.map(({id,platform}:{id:string;platform:string})=>({buildId:id,platform})),selected);
+  const journal = await f.call('apply_testflight_distribution',approval(plan));
+  assert.equal(journal.state,'complete');
+  for (const {buildId, directory} of targets) {
+    assert.equal(f.state.members.has(buildId),true);
+    assert.equal(f.state.builds.get(buildId)!.localizations[0]?.attributes?.whatsNew,`Test the ${directory} build.`);
+  }
+  assert.equal((await f.distribution(args)).noOp,true);
+});
+
 test('submits only an attached ready build, and treats Apple approval and actual tester availability separately',async t=>{
   const f=await fixture(t);
   const build=builds[0];

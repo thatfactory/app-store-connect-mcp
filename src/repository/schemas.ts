@@ -2,7 +2,8 @@ import { z } from 'zod';
 export const locales = ['en-US', 'de-DE', 'fr-FR', 'ja', 'pt-BR'] as const;
 export const platforms = {macOS: 'MAC_OS', iOS: 'IOS', tvOS: 'TV_OS', visionOS: 'VISION_OS'} as const;
 export const localeSchema = z.enum(locales);
-const platform = z.enum(['MAC_OS','IOS','TV_OS','VISION_OS']);
+export const platformSchema = z.enum(platforms);
+export type ApplePlatform = z.infer<typeof platformSchema>;
 const relative = z.string().min(1).max(512);
 const url = z.string().url().max(2048);
 export const versionString = z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/);
@@ -10,13 +11,13 @@ const bundle = z.string().regex(/^[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+$/).max(255);
 export const appSchema = z.object({
   schemaVersion: z.literal(1),
   app: z.object({appStoreId:z.string().regex(/^[0-9]+$/).optional(),bundleId:bundle,primaryLocale:localeSchema,sku:z.string().min(1).max(100).optional()}).strict(),
-  platforms:z.array(platform).min(1).max(4),localizations:z.array(localeSchema).min(1).max(5),
+  platforms:z.array(platformSchema).min(1).max(4),localizations:z.array(localeSchema).min(1).max(5),
   categories:z.object({primary:z.string().min(1),secondary:z.string().min(1).nullable().optional()}).strict().optional(),
   defaults:z.object({privacyPolicyUrl:url}).strict().optional(),
   project:z.object({path:relative,scheme:z.string().min(1).optional(),target:z.string().min(1).optional(),configuration:z.string().min(1).optional()}).strict().optional(),
 }).strict();
 export const infoSchema=z.object({name:z.string().min(2).max(30).optional(),subtitle:z.string().max(30).nullable().optional(),privacyPolicyUrl:url.nullable().optional()}).strict();
-export const versionSchema=z.object({schemaVersion:z.literal(1),platform,versionString,copyright:z.string().min(1).max(256).optional(),releaseType:z.enum(['MANUAL','AFTER_APPROVAL']).optional(),defaults:z.object({supportUrl:url}).strict().optional()}).strict();
+export const versionSchema=z.object({schemaVersion:z.literal(1),platform:platformSchema,versionString,copyright:z.string().min(1).max(256).optional(),releaseType:z.enum(['MANUAL','AFTER_APPROVAL']).optional(),defaults:z.object({supportUrl:url}).strict().optional()}).strict();
 export const metadataSchema=z.object({supportUrl:url.nullable().optional(),marketingUrl:url.nullable().optional()}).strict();
 export const reviewEnvironment={contactFirstName:'APPSTORE_REVIEW_FIRST_NAME',contactLastName:'APPSTORE_REVIEW_LAST_NAME',contactPhone:'APPSTORE_REVIEW_PHONE',contactEmail:'APPSTORE_REVIEW_EMAIL',demoAccountName:'APPSTORE_REVIEW_DEMO_USERNAME',demoAccountPassword:'APPSTORE_REVIEW_DEMO_PASSWORD'} as const;
 const reference=(name:string)=>z.object({env:z.literal(name)}).strict();
@@ -32,7 +33,6 @@ const identifier=z.object({name:z.string().min(1),platform:z.enum(['IOS','MAC_OS
 export const provisioningSchema=z.object({schemaVersion:z.literal(1),primaryBundleId:identifier,additionalBundleIds:z.array(identifier.extend({identifier:bundle})).optional()}).strict();
 export const appleId=z.string().regex(/^[A-Za-z0-9_-]{1,128}$/);
 export const testflightGroupKey=z.string().regex(/^[a-z0-9][a-z0-9-]{0,63}$/);
-export const testflightPlatforms={iOS:'IOS',tvOS:'TV_OS'} as const;
 const nonEmpty=(max:number)=>z.string().min(1).max(max).regex(/\S/);
 const testflightGroupSchema=z.object({
   name:nonEmpty(256),

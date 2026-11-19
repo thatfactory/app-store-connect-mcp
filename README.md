@@ -26,7 +26,7 @@ It lets MCP-capable agents validate listing content, inspect App Store Connect, 
 | Plan screenshot and commerce changes | `plan_screenshot_changes`, `plan_commerce_changes` |
 | Manage certificates, devices, and profiles | `get_provisioning_resources`, `plan_signing_changes`, `download_signing_artifact` |
 | Apply an approved plan and inspect recovery state | `apply_plan`, `get_operation_status` |
-| Manage external TestFlight groups and distribute exact iOS and tvOS builds | `get_testflight_state`, `plan_testflight_configuration`, `plan_testflight_distribution`, `apply_testflight_distribution`, `get_testflight_join_link` |
+| Manage external TestFlight groups and distribute exact builds across App Store Connect platforms | `get_testflight_state`, `plan_testflight_configuration`, `plan_testflight_distribution`, `apply_testflight_distribution`, `get_testflight_join_link` |
 | Check readiness and submit a prepared version | `check_release_readiness`, `plan_submission`, `submit_for_review` |
 
 Changes are planned before they are applied. Omitted fields remain untouched, repeated synchronization converges to no changes, and ordinary synchronization cannot submit an app for review.

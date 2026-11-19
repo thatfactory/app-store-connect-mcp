@@ -1,6 +1,6 @@
 {
   "name": "@thatfactory/app-store-connect-mcp",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Local stdio MCP server for reviewed App Store Connect repository synchronization.",
   "license": "MIT",
   "type": "module",

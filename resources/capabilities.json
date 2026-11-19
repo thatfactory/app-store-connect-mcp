@@ -83,11 +83,14 @@
   "testflight": {
     "platforms": [
       "IOS",
-      "TV_OS"
+      "MAC_OS",
+      "TV_OS",
+      "VISION_OS"
     ],
     "configuration": "Reviewed external group creation with its link disabled, beta app localizations and beta review details",
     "distribution": "Exact build attachment, What to Test, build-wide auto-notify, explicit later review and notification, and separate group public link policy",
     "execution": "Independent allow-beta-distribution gate with write mode and exact host approval",
-    "evidence": "Fixture-tested with separately recorded live acceptance"
+    "evidence": "Fixture-tested with separately recorded live acceptance",
+    "platformNotes": "Use IOS for iPad and Apple Watch builds reported on the iOS platform, including watch-only app records."
   }
 }

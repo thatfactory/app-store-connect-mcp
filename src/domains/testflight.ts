@@ -4,13 +4,13 @@ import { TestFlightApi, type BetaBuild, type BetaGroup, type BuildIdentity } fro
 import type { Attributes, Resource } from '../api/resources/discovery.js';
 import { AppStoreError } from '../errors.js';
 import { canonical, type Adapter, type Json, type Operation, type Snapshot } from '../planning/model.js';
-import { appleId, localeSchema, testflightGroupKey, testflightPlatforms, type TestFlightGroup, type testflightGroupsSchema, type Selection } from '../repository/schemas.js';
+import { appleId, localeSchema, platformSchema, platforms, testflightGroupKey, type TestFlightGroup, type testflightGroupsSchema, type Selection } from '../repository/schemas.js';
 import { appManifest, validateRepository } from '../repository/validate.js';
 
 const root = z.string().min(1);
 const unique = <T>(values: T[]) => new Set(values).size === values.length;
 const locales = z.array(localeSchema).min(1).max(5).refine(unique);
-const build = z.object({buildId:appleId, platform:z.enum(['IOS','TV_OS'])}).strict();
+const build = z.object({buildId:appleId, platform:platformSchema}).strict();
 const attachBuild = build.extend({autoNotifyEnabled:z.boolean().optional()}).strict();
 const uniqueBuilds = (builds: {buildId:string}[]) => unique(builds.map(item => item.buildId));
 export const testflightStateSelection = z.object({
@@ -43,7 +43,7 @@ type Write =
   | {action:'attach'; groupId:string; buildId:string}
   | {action:'submit'|'notify'; buildId:string};
 
-const rulesVersion = 'testflight/1';
+const rulesVersion = 'testflight/2';
 const ready = new Set(['READY_FOR_BETA_SUBMISSION','WAITING_FOR_BETA_REVIEW','IN_BETA_REVIEW',
   'BETA_APPROVED','READY_FOR_BETA_TESTING','IN_BETA_TESTING']);
 const groupKey = (key:string) => `group:${key}`;
@@ -334,7 +334,7 @@ export class TestFlightDistributionAdapter extends TestFlightAdapter {
       remote[buildKey(id,'membership')] = members.includes(id);
       if (item.autoNotifyEnabled !== undefined) desired[buildKey(id,'detail')] = {autoNotifyEnabled:item.autoNotifyEnabled};
       if (locales) {
-        const platform = (Object.keys(testflightPlatforms) as (keyof typeof testflightPlatforms)[]).find(key => testflightPlatforms[key] === identity.platform)!;
+        const platform = (Object.keys(platforms) as (keyof typeof platforms)[]).find(key => platforms[key] === identity.platform)!;
         const notes = await validate({root:canonicalRoot, domains:['testflightBuildNotes'], platform, version:identity.version, locales}, this.roots, env, signal);
         if (notes.root !== canonicalRoot) throw new AppStoreError('inputChanged', 'The selected AppStore root changed during capture.');
         for (const [path, hash] of Object.entries(notes.hashes)) {

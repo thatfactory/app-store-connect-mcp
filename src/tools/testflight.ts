@@ -34,7 +34,7 @@ export function registerTestFlight(server:McpServer, config:Configuration, engin
   const account = identity ?? (() => auth.identity());
   const reader = new TestFlightReader(config.allowedRoots, client, account);
   server.registerTool('get_testflight_state', {
-    description:'Read the verified app and optional declared external group, with explicit iOS/tvOS builds and separate membership, external testing and beta review observations. Excludes the public join URL.',
+    description:'Read the verified app and optional declared external group, with exact builds on App Store Connect platforms and separate membership, external testing and beta review observations. Excludes the public join URL.',
     inputSchema:testflightStateSelection, annotations:readOnly,
   }, (args, extra) => reply(() => reader.state(args, extra.signal)));
   server.registerTool('get_testflight_join_link', {

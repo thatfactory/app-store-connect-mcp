@@ -1,6 +1,15 @@
-# TestFlight for iOS and tvOS
+# External TestFlight
 
-Start with an existing App Store Connect app whose ID and bundle ID are in `AppStore/app.json`. Set `--allowed-root` to the containing checkout. The supported build selectors use Apple's `IOS` and `TV_OS` enum values. Take the build IDs from App Store Connect or from the verified build output of Xcode Cloud MCP. App Store Connect MCP checks each ID again before any write.
+Start with an existing App Store Connect app whose ID and bundle ID are in `AppStore/app.json`. Set `--allowed-root` to the containing checkout. Use the exact build ID and the platform reported by its App Store Connect prerelease version. App Store Connect MCP checks both again before any write. You can use a verified build ID from Xcode Cloud MCP when its lookup supports the target.
+
+| App or build | MCP platform | Build notes directory |
+| --- | --- | --- |
+| iPhone, iPad and Apple Watch | `IOS` | `iOS` |
+| Native Mac | `MAC_OS` | `macOS` |
+| Apple TV | `TV_OS` | `tvOS` |
+| Native Apple Vision Pro | `VISION_OS` | `visionOS` |
+
+These are the four [App Store Connect platform values](https://developer.apple.com/documentation/appstoreconnectapi/platform). Apple includes [watch-only apps under iOS](https://developer.apple.com/help/app-store-connect/create-an-app-record/add-a-new-app/). An iOS build that Apple makes available on another device still uses `IOS`. App Store Connect and TestFlight determine device compatibility, group availability and installation.
 
 ## Repository inputs
 
@@ -17,6 +26,8 @@ AppStore/
     build-notes/iOS/1.0/pt-BR.txt
     build-notes/tvOS/1.0/en-US.txt
     build-notes/tvOS/1.0/pt-BR.txt
+    build-notes/macOS/1.0/en-US.txt
+    build-notes/visionOS/1.0/en-US.txt
 ```
 
 Each optional file is managed only when its scope is selected for planning. The stable group key identifies your policy. The exact name identifies the group in App Store Connect. Add the returned `groupId` once a group has been created or adopted to guard against name and identity drift.
@@ -42,7 +53,7 @@ Each selected `localizations/<locale>.json` must contain at least one field. It 
 
 In `review.json`, use the existing narrow environment references for reviewer contacts and demo credentials. For example, set `"contactEmail": {"env":"APPSTORE_REVIEW_EMAIL"}`. `demoAccountRequired` takes a boolean. Put non-secret instructions in `review-notes.txt`. The review scope patches the app's existing TestFlight review record. Missing contacts, required test information and demo credentials can still block Apple review. See [Apple's test information requirements](https://developer.apple.com/help/app-store-connect/test-a-beta-version/provide-test-information/).
 
-Build notes use the exact marketing version and platform of the Apple build. Every selected locale requires its own non-empty UTF-8 file. `validate_repository` supports `testflightGroups`, `testflightLocalizations`, `testflightReview` and `testflightBuildNotes`. For an explicit build notes validation, provide `platform` (`iOS` or `tvOS`), `version`, and optionally the selected `locales`. Unmanaged locales, attributes, groups and build memberships are preserved.
+Build notes use the exact marketing version and platform of the Apple build. Every selected locale requires its own non-empty UTF-8 file. `validate_repository` supports `testflightGroups`, `testflightLocalizations`, `testflightReview` and `testflightBuildNotes`. For an explicit build notes validation, provide the `platform` directory name from the table, `version`, and optionally the selected `locales`. Unmanaged locales, attributes, groups and build memberships are preserved.
 
 ## Plan and execute
 
