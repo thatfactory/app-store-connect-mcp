@@ -2,7 +2,7 @@ import { createHmac, randomBytes, randomUUID, timingSafeEqual } from 'node:crypt
 import { realpath } from 'node:fs/promises';
 import { AppStoreError,type AppleValidationIssue } from '../errors.js';
 import { contains } from '../repository/files.js';
-import { canonical, freeze, type Snapshot, type Operation, type Adapter } from './model.js';
+import { canonical, freeze, type Snapshot, type Operation, type Adapter, type Json } from './model.js';
 import { JournalStore } from './journal.js';
 export interface Approval {planId:string;digest:string;operationIds:string[];authorization:{confirmedByHost:true}}
 export type OperationState='notStarted'|'inFlight'|'confirmed'|'reconciled'|'failed'|'outcomeUnknown';
@@ -10,6 +10,7 @@ export interface Entry {id:string;approved:boolean;state:OperationState;beforeHa
 export interface Journal {planId:string;digest:string;state:'planned'|'running'|'complete'|'partial';operations:Entry[];updatedAt:string}
 interface Plan {id:string;digest:string;snapshot:Snapshot;operations:Operation[];createdAt:number;expiresAt:number}
 interface RecordState {plan:Plan;adapter:Adapter;store:JournalStore;journal:Journal;consumed:boolean}
+type ApplyMode='ordinary'|'submission'|'betaDistribution';
 export class PlanEngine {
   readonly #secret=randomBytes(32);
   readonly #records=new Map<string,RecordState>();
@@ -65,20 +66,29 @@ export class PlanEngine {
   #unrelatedChange(before:Snapshot,after:Snapshot,operation:Operation):boolean{
     return [...new Set([...Object.keys(before.remote),...Object.keys(after.remote)])].some(key=>!operation.affects.includes(key)&&!this.#equal(before.remote[key],after.remote[key]));
   }
-  async apply(approval:Approval,signal?:AbortSignal):Promise<Journal>{return this.#apply(approval,false,signal);}
-  async submit(approval:Approval,submissionEnabled:boolean,signal?:AbortSignal):Promise<Journal>{if(!submissionEnabled)throw new AppStoreError('submissionDisabled','Restart with both --allow-writes and --allow-submission before submitting.');return this.#apply(approval,true,signal);}
-  async #apply(approval:Approval,submissionMode:boolean,signal?:AbortSignal):Promise<Journal>{
+  async apply(approval:Approval,signal?:AbortSignal):Promise<Journal>{return this.#apply(approval,'ordinary',signal);}
+  async submit(approval:Approval,submissionEnabled:boolean,signal?:AbortSignal):Promise<Journal>{if(!submissionEnabled)throw new AppStoreError('submissionDisabled','Restart with both --allow-writes and --allow-submission before submitting.');return this.#apply(approval,'submission',signal);}
+  async distributeBeta(approval:Approval,enabled:boolean,signal?:AbortSignal):Promise<Journal & {testflight?:Json}>{
+    if(!enabled)throw new AppStoreError('betaDistributionDisabled','Restart with both --allow-writes and --allow-beta-distribution before applying a TestFlight distribution plan.');
+    let testflight:Json|undefined;
+    const journal=await this.#apply(approval,'betaDistribution',signal,value=>{testflight=value;});
+    return {...journal,...(testflight===undefined?{}:{testflight})};
+  }
+  async #apply(approval:Approval,mode:ApplyMode,signal?:AbortSignal,observe?:(value:Json|undefined)=>void):Promise<Journal>{
     if(!this.allowWrites)throw new AppStoreError('readOnly','Restart with the independently authorized write flag before applying.');
     if(approval.authorization?.confirmedByHost!==true)throw new AppStoreError('approvalRequired','The host must authorize the exact operation subset; a digest alone is not consent.');
     const record=this.#record(approval.planId);const {plan,adapter}=record;
+    const betaPlan=adapter.domain==='testflightDistribution';
+    if(betaPlan&&mode!=='betaDistribution')throw new AppStoreError('betaDistributionForbidden','TestFlight distribution plans require apply_testflight_distribution.');
+    if(!betaPlan&&mode==='betaDistribution')throw new AppStoreError('invalidBetaDistributionApproval','Select an exact TestFlight distribution plan.');
     if(!this.#matchingDigest(approval.digest,plan.digest)||this.now()>=plan.expiresAt)throw new AppStoreError('stalePlan','Plan digest or expiry is invalid.');
     if(record.consumed)throw new AppStoreError('planConsumed','This plan has already begun; replan incomplete work from current state.');
     const selected=new Set(approval.operationIds);
     if(selected.size!==approval.operationIds.length||approval.operationIds.some(id=>!plan.operations.some(operation=>operation.id===id)))throw new AppStoreError('invalidApproval','Approval contains unknown or repeated operations.');
     const operations=plan.operations.filter(operation=>selected.has(operation.id));
-    if(submissionMode&&(operations.length!==plan.operations.length||operations.some(operation=>operation.kind!=='submission')))throw new AppStoreError('invalidSubmissionApproval','Submission requires every operation in an exact submission-only plan.');
+    if(mode==='submission'&&(operations.length!==plan.operations.length||operations.some(operation=>operation.kind!=='submission')))throw new AppStoreError('invalidSubmissionApproval','Submission requires every operation in an exact submission-only plan.');
     for(const operation of operations){
-      if(!submissionMode&&operation.kind==='submission')throw new AppStoreError('submissionForbidden','Ordinary apply cannot submit for review.');
+      if(mode!=='submission'&&operation.kind==='submission')throw new AppStoreError('submissionForbidden','Ordinary apply cannot submit for review.');
       if(operation.dependencies.some(id=>!selected.has(id)))throw new AppStoreError('missingDependency','Approve the required dependency subset or create a new plan.');
     }
     // Account-wide serialization also covers shared AppInfo and provisioning resources.
@@ -87,19 +97,26 @@ export class PlanEngine {
     this.#locks.add(lock);
     try{
       let current=await adapter.capture(signal);this.#checkSnapshot(plan,current,plan.snapshot.remote);
+      observe?.(adapter.summary?.(current));
       record.consumed=true;record.journal.state='running';for(const entry of record.journal.operations)entry.approved=selected.has(entry.id);await this.#persist(record);
       for(const operation of operations){
         signal?.throwIfAborted();
         const before=await adapter.capture(signal);this.#checkSnapshot(plan,before,current.remote);
         const entry=record.journal.operations.find(item=>item.id===operation.id)!;
-        entry.state='inFlight';entry.beforeHash=this.#hash(before.remote);entry.updatedAt=this.#stamp();await this.#persist(record);
         let failure:unknown;
-        try{signal?.throwIfAborted();await adapter.execute(operation,signal);}catch(error){failure=error;}
+        try{adapter.checkOperation?.(operation,before);}catch(error){failure=error;}
+        if(!failure){
+          entry.state='inFlight';entry.beforeHash=this.#hash(before.remote);entry.updatedAt=this.#stamp();await this.#persist(record);
+          observe?.(undefined);
+          try{signal?.throwIfAborted();await adapter.execute(operation,signal);}catch(error){failure=error;}
+        }
         if(failure instanceof AppStoreError&&failure.executionDisposition!=='outcomeUnknown'){
+          observe?.(adapter.summary?.(before));
           entry.state='failed';entry.code=failure.code;if(failure.validationErrors?.length)entry.validationErrors=failure.validationErrors;await this.#persist(record);break;
         }
         let after:Snapshot|undefined;
         try{after=await adapter.capture(signal);}catch{ /* Retain uncertainty; never replay execute. */ }
+        if(after&&this.#equal(this.#binding(plan.snapshot),this.#binding(after)))observe?.(adapter.summary?.(after));
         if(after&&this.#equal(this.#binding(plan.snapshot),this.#binding(after))&&adapter.verify(operation,after)){
           entry.state=failure?'reconciled':'confirmed';entry.remoteIds=this.#remoteIds(record,operation,after);entry.afterHash=this.#hash(after.remote);entry.updatedAt=this.#stamp();await this.#persist(record);
           if(this.#unrelatedChange(before,after,operation)||!this.#equal(this.#binding(plan.snapshot),this.#binding(after))){entry.code='concurrentChange';await this.#persist(record);break;}

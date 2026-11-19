@@ -1,0 +1,22 @@
+{
+  "schema": "BetaAppLocalizationUpdateRequest",
+  "valid": {
+    "data": {
+      "type": "betaAppLocalizations",
+      "id": "localized-app",
+      "attributes": {
+        "description": "Beta test."
+      }
+    }
+  },
+  "invalid": {
+    "data": {
+      "type": "betaAppLocalizations",
+      "id": "localized-app",
+      "attributes": {
+        "locale": "en-US",
+        "description": "Beta test."
+      }
+    }
+  }
+}

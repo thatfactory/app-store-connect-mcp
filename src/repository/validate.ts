@@ -4,9 +4,9 @@ import { z } from 'zod';
 import { AppStoreError } from '../errors.js';
 import { RepositoryFiles, safeRelative } from './files.js';
 import { parseJson } from './json.js';
-import { schemas, domains, platforms, reviewEnvironment, selectionSchema, type Selection, type AppManifest } from './schemas.js';
+import { schemas, domains, platforms, reviewEnvironment, selectionSchema, testflightFeedbackEnvironment, testflightPlatforms, versionString, type Selection, type AppManifest } from './schemas.js';
 export interface Diagnostic {path:string;locale?:string;field:string;rule:string;severity:'error'|'advisory';message:string}
-export interface ValidatedRepository {images:Record<string,ImageIdentity>;valid:boolean;diagnostics:Diagnostic[];hashes:Record<string,string>;desired:Record<string,unknown>;secretFingerprint:string;measurements:Record<string,{codePoints:number;utf16Units:number;graphemes:number;utf8Bytes:number}>}
+export interface ValidatedRepository {root:string;images:Record<string,ImageIdentity>;valid:boolean;diagnostics:Diagnostic[];hashes:Record<string,string>;desired:Record<string,unknown>;secretFingerprint:string;measurements:Record<string,{codePoints:number;utf16Units:number;graphemes:number;utf8Bytes:number}>}
 const secretKey=randomBytes(32);
 const textFields={'description.txt':['description',4000,'characters'],'keywords.txt':['keywords',100,'bytes'],'promotional-text.txt':['promotionalText',170,'characters'],'whats-new.txt':['whatsNew',4000,'characters']} as const;
 export async function validateRepository(selection:Selection,allowedRoots:readonly string[],environment:Readonly<Record<string,string|undefined>>=process.env,signal?:AbortSignal):Promise<ValidatedRepository>{
@@ -35,13 +35,19 @@ export async function validateRepository(selection:Selection,allowedRoots:readon
     catch{report(file,field,'invalidUrl','Supply an owner-reviewed public HTTP(S) URL without credentials or placeholders.');}
   }
   function unique(values:readonly string[],file:string,field:string):void{if(new Set(values).size!==values.length)report(file,field,'duplicateValue','Remove duplicate entries; their order is otherwise preserved.');}
-  async function text(file:string,field:string,max:number,unit:string,locale?:string):Promise<void>{
-    const bytes=await read(file);if(!bytes)return;const original=decode(bytes,file);if(original===undefined)return;
+  function secret(file:string,field:string,name:string):void{
+    const value=environment[name];
+    if(!value?.trim()||value.length>4096)report(file,field,'missingReviewSecret','Supply a non-empty, bounded environment value.');
+    else secrets[name]=value;
+  }
+  async function text(file:string,field:string,max:number,unit:string,locale?:string,required=false):Promise<void>{
+    const bytes=await read(file,required);if(!bytes)return;const original=decode(bytes,file);if(original===undefined)return;
     const normalized=original.replaceAll('\r\n','\n').replace(/\n$/,'');
     if(normalized!==original)report(file,field,'normalizedNewline','CRLF and one terminal newline are normalized for upload.','advisory',locale);
     const counts={codePoints:[...normalized].length,utf16Units:normalized.length,graphemes:[...new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(normalized)].length,utf8Bytes:Buffer.byteLength(normalized)};measurements[file]=counts;
     if((unit==='bytes'?counts.utf8Bytes:counts.utf16Units)>max)report(file,field,'fieldLimit',`Limit is ${max} ${unit==='bytes'?'UTF-8 bytes':'conservative UTF-16 units'}; edit the source explicitly.`,'error',locale);
     if(/(?:\bTODO\b|\bTBD\b|\bPLACEHOLDER\b|example\.invalid)/i.test(normalized))report(file,field,'placeholder','Replace placeholder content before synchronization.','error',locale);
+    if(required&&!normalized.trim())report(file,field,'missingContent','Supply explicit text for the selected locale.','error',locale);
     if(field==='keywords'){
       if(/[\r\n]/.test(normalized))report(file,field,'singleLine','Keywords must be one comma-separated line.','error',locale);
       const words=normalized.split(',');if(words.some(word=>word!==word.trim())||new Set(words.map(word=>word.trim())).size!==words.length)report(file,field,'keywordAdvice','Review separator whitespace and repeated keywords; content was not changed.','advisory',locale);
@@ -62,6 +68,53 @@ export async function validateRepository(selection:Selection,allowedRoots:readon
     }
     if(selected.has('commerce')){const commerce=await json('commerce.json',schemas.commerce);if(commerce&&Array.isArray(commerce.availability?.territories))unique(commerce.availability.territories,'commerce.json','availability.territories');}
     if(selected.has('provisioning'))await json('provisioning.json',schemas.provisioning);
+    if(selected.has('testflightGroups')){
+      const file='testflight/groups.json';
+      const manifest=await json(file,schemas['testflight-groups'],!!selection.domains);
+      if(manifest){
+        const groups=Object.values(manifest.groups);
+        if(groups.length>100)report(file,'groups','inputLimit','Declare at most 100 managed groups.');
+        unique(groups.map(group=>group.name),file,'groups.name');
+        unique(groups.flatMap(group=>group.groupId?[group.groupId]:[]),file,'groups.groupId');
+      }
+    }
+    if(selected.has('testflightLocalizations')){
+      for(const locale of locales){
+        const file=`testflight/localizations/${locale}.json`;
+        const value=await json(file,schemas['testflight-localization'],!!selection.domains);
+        if(!value)continue;
+        if(!Object.keys(value).length)report(file,'','missingContent','Supply explicit beta information for this locale.','error',locale);
+        checkUrl(value.marketingUrl,file,'marketingUrl');
+        checkUrl(value.privacyPolicyUrl,file,'privacyPolicyUrl');
+        if(typeof value.feedbackEmail==='object')secret(file,'feedbackEmail',testflightFeedbackEnvironment);
+      }
+    }
+    if(selected.has('testflightReview')){
+      const file='testflight/review.json';
+      const review=await json(file,schemas['testflight-review']);
+      if(review)for(const [field,name] of Object.entries(reviewEnvironment)){
+        if(review[field as keyof typeof review])secret(file,field,name);
+      }
+      const notes='testflight/review-notes.txt';
+      await text(notes,'notes',4000,'bytes');
+      if(selection.domains&&!Object.keys(review??{}).length&&!desired[notes])report(file,'','missingContent','Supply selected beta review details or review notes.');
+    }
+    if(selected.has('testflightBuildNotes')){
+      const directories=(Object.keys(testflightPlatforms) as (keyof typeof testflightPlatforms)[]).filter(directory=>
+        (!selection.platform||selection.platform===directory)&&app.platforms.includes(testflightPlatforms[directory]));
+      if(selection.domains&&(!selection.platform||!selection.version||directories.length!==1)){
+        report('testflight/build-notes','','buildNotesSelection','Select an exact iOS or tvOS platform and marketing version declared in app.json.');
+      }else for(const directory of directories){
+        const prefix=`testflight/build-notes/${directory}`;
+        let versions:string[];
+        try{versions=selection.version?[selection.version]:await files.directories(prefix);}
+        catch{report(prefix,'','unsafePath','Build notes must be contained and bounded.');continue;}
+        for(const version of versions){
+          if(!versionString.safeParse(version).success){report(prefix,'','unsafePath','Use a supported marketing version directory.');continue;}
+          for(const locale of locales)await text(`${prefix}/${version}/${locale}.txt`,'whatsNew',4000,'characters',locale,!!selection.domains);
+        }
+      }
+    }
     if([...selected].some(domain=>['versionMetadata','version','review','screenshots'].includes(domain))){
       const dirs=selection.platform?[selection.platform]:Object.keys(platforms).filter(key=>app.platforms.includes(platforms[key as keyof typeof platforms]));
       let versionCount=0;
@@ -107,6 +160,6 @@ export async function validateRepository(selection:Selection,allowedRoots:readon
   }
   if(signal?.aborted)throw new AppStoreError('cancelled','Repository validation cancelled.');
   diagnostics.sort((a,b)=>[a.path,a.field,a.rule].join('\0').localeCompare([b.path,b.field,b.rule].join('\0'),'en'));
-  return {images,valid:!diagnostics.some(item=>item.severity==='error'),diagnostics,hashes:files.hashes,desired,secretFingerprint:createHmac('sha256',secretKey).update(JSON.stringify(Object.entries(secrets).sort())).digest('hex'),measurements};
+  return {root:files.root,images,valid:!diagnostics.some(item=>item.severity==='error'),diagnostics,hashes:files.hashes,desired,secretFingerprint:createHmac('sha256',secretKey).update(JSON.stringify(Object.entries(secrets).sort())).digest('hex'),measurements};
 }
 export function appManifest(result:ValidatedRepository):AppManifest|undefined{return result.desired['app.json'] as AppManifest|undefined;}

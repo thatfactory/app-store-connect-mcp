@@ -1,0 +1,22 @@
+{
+  "schema": "BetaAppReviewDetailUpdateRequest",
+  "valid": {
+    "data": {
+      "type": "betaAppReviewDetails",
+      "id": "review-detail",
+      "attributes": {
+        "demoAccountRequired": false,
+        "notes": "Open the first screen."
+      }
+    }
+  },
+  "invalid": {
+    "data": {
+      "type": "betaAppReviewDetails",
+      "id": "review-detail",
+      "attributes": {
+        "requiresDemoAccount": false
+      }
+    }
+  }
+}

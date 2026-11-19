@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000,
+      "pattern": "\\S"
+    },
+    "feedbackEmail": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 256,
+          "format": "email",
+          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "env": {
+              "type": "string",
+              "const": "APPSTORE_TESTFLIGHT_FEEDBACK_EMAIL"
+            }
+          },
+          "required": [
+            "env"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "marketingUrl": {
+      "type": "string",
+      "maxLength": 2048,
+      "format": "uri"
+    },
+    "privacyPolicyUrl": {
+      "type": "string",
+      "maxLength": 2048,
+      "format": "uri"
+    },
+    "tvOsPrivacyPolicy": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000,
+      "pattern": "\\S"
+    }
+  },
+  "additionalProperties": false
+}

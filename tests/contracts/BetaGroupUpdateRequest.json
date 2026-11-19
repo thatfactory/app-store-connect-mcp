@@ -1,0 +1,24 @@
+{
+  "schema": "BetaGroupUpdateRequest",
+  "valid": {
+    "data": {
+      "type": "betaGroups",
+      "id": "external",
+      "attributes": {
+        "publicLinkEnabled": true,
+        "publicLinkLimitEnabled": true,
+        "publicLinkLimit": 10
+      }
+    }
+  },
+  "invalid": {
+    "data": {
+      "type": "betaGroups",
+      "id": "external",
+      "attributes": {
+        "publicLinkEnabled": true,
+        "publicLinkLimit": "10"
+      }
+    }
+  }
+}

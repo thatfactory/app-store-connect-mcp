@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "contactFirstName": {
+      "type": "object",
+      "properties": {
+        "env": {
+          "type": "string",
+          "const": "APPSTORE_REVIEW_FIRST_NAME"
+        }
+      },
+      "required": [
+        "env"
+      ],
+      "additionalProperties": false
+    },
+    "contactLastName": {
+      "type": "object",
+      "properties": {
+        "env": {
+          "type": "string",
+          "const": "APPSTORE_REVIEW_LAST_NAME"
+        }
+      },
+      "required": [
+        "env"
+      ],
+      "additionalProperties": false
+    },
+    "contactPhone": {
+      "type": "object",
+      "properties": {
+        "env": {
+          "type": "string",
+          "const": "APPSTORE_REVIEW_PHONE"
+        }
+      },
+      "required": [
+        "env"
+      ],
+      "additionalProperties": false
+    },
+    "contactEmail": {
+      "type": "object",
+      "properties": {
+        "env": {
+          "type": "string",
+          "const": "APPSTORE_REVIEW_EMAIL"
+        }
+      },
+      "required": [
+        "env"
+      ],
+      "additionalProperties": false
+    },
+    "demoAccountRequired": {
+      "type": "boolean"
+    },
+    "demoAccountName": {
+      "type": "object",
+      "properties": {
+        "env": {
+          "type": "string",
+          "const": "APPSTORE_REVIEW_DEMO_USERNAME"
+        }
+      },
+      "required": [
+        "env"
+      ],
+      "additionalProperties": false
+    },
+    "demoAccountPassword": {
+      "type": "object",
+      "properties": {
+        "env": {
+          "type": "string",
+          "const": "APPSTORE_REVIEW_DEMO_PASSWORD"
+        }
+      },
+      "required": [
+        "env"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

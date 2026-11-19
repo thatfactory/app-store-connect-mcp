@@ -1,0 +1,36 @@
+{
+  "schema": "BetaAppLocalizationCreateRequest",
+  "valid": {
+    "data": {
+      "type": "betaAppLocalizations",
+      "attributes": {
+        "locale": "pt-BR",
+        "description": "Teste beta."
+      },
+      "relationships": {
+        "app": {
+          "data": {
+            "type": "apps",
+            "id": "1234"
+          }
+        }
+      }
+    }
+  },
+  "invalid": {
+    "data": {
+      "type": "betaAppLocalizations",
+      "attributes": {
+        "description": "Teste beta."
+      },
+      "relationships": {
+        "app": {
+          "data": {
+            "type": "apps",
+            "id": "1234"
+          }
+        }
+      }
+    }
+  }
+}

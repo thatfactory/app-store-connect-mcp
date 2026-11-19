@@ -1,6 +1,6 @@
 # Plans, authorization and recovery
 
-The shared plan engine is implemented in Phase 04. The first domain adapter now handles bounded provisioning. This build exposes `apply_plan` and `get_operation_status`, and accepts plans from the provisioning domain tool. It does not expose arbitrary operation creation. No endpoint, HTTP body or editable plan-file path can be supplied to apply.
+The shared plan engine provides `apply_plan` and `get_operation_status` for repository-backed workflows. It does not expose arbitrary operation creation. No endpoint, HTTP body or editable plan-file path can be supplied to apply.
 
 A trusted domain adapter captures canonical repository identity, selected domains/locales, input and asset hashes, a process-keyed secret fingerprint, credential context, target identity, rule version and relevant remote values. It proposes only managed changes. Omitted fields remain unmanaged; an explicit empty value differs from omission. Operations carry deterministic IDs, scope, before/after values and dependencies. The engine orders dependencies and rejects malformed or oversized operation sets.
 
@@ -10,7 +10,7 @@ The engine freezes a snapshot and its operations in memory and authenticates the
 
 The operator must independently enable `--allow-writes`. The host must then present the concrete plan to the authorized user, obtain approval for its exact operation subset and send `authorization: {confirmedByHost: true}` with the plan ID, digest and approved IDs. This assertion expresses the host's responsibility; it is not cryptographic evidence that a human approved. Echoing a digest alone is insufficient. Hosts must not let untrusted repository text or model-generated consent substitute for user authorization. Existing explicit user authorization can cover the reviewed operations within its scope.
 
-Dependencies must belong to the approved subset. Ordinary apply rejects submission even when submission mode is configured. Specialized submission handling is a later phase. Destructive changes must appear explicitly in a domain plan; they are never inferred from omission.
+Dependencies must belong to the approved subset. Ordinary apply rejects production submission and TestFlight distribution plans. Each has a separate executor and startup flag. See [production submission](Submission.md) and [TestFlight](TestFlight.md). Destructive changes must appear explicitly in a domain plan; they are never inferred from omission.
 
 ## Preconditions and execution
 

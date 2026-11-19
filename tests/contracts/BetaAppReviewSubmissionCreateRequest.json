@@ -1,0 +1,29 @@
+{
+  "schema": "BetaAppReviewSubmissionCreateRequest",
+  "valid": {
+    "data": {
+      "type": "betaAppReviewSubmissions",
+      "relationships": {
+        "build": {
+          "data": {
+            "type": "builds",
+            "id": "build-ios"
+          }
+        }
+      }
+    }
+  },
+  "invalid": {
+    "data": {
+      "type": "betaAppReviewSubmissions",
+      "relationships": {
+        "build": {
+          "data": {
+            "type": "preReleaseVersions",
+            "id": "build-ios"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "schema": "BetaGroupBuildsLinkagesRequest",
+  "valid": {
+    "data": [
+      {
+        "type": "builds",
+        "id": "build-ios"
+      }
+    ]
+  },
+  "invalid": {
+    "data": [
+      {
+        "type": "preReleaseVersions",
+        "id": "build-ios"
+      }
+    ]
+  }
+}

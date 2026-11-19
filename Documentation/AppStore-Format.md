@@ -4,7 +4,7 @@ Status: proposed schema version 1. Implement this specification in Phase 02 and 
 
 ## 1. Why this layout
 
-Keep small structured records in JSON and editable prose in plain text. Distinguish information shared by the app from information attached to a platform version. Store screenshot originals once and reference them from any number of versions. Keep secrets and operational state outside the committed content.
+Keep small structured records in JSON and editable prose in plain text. See [TestFlight](TestFlight.md) for versioned external group policies and beta notes. Distinguish information shared by the app from information attached to a platform version. Store screenshot originals once and reference them from any number of versions. Keep secrets and operational state outside the committed content.
 
 One `AppStore/` root manages one App Store app record, potentially with multiple platform versions. A monorepo can supply several explicit roots; the server must never choose the first root or app target automatically.
 
@@ -13,6 +13,7 @@ AppStore/
   app.json
   commerce.json                         # optional until managed
   provisioning.json                     # optional until managed
+  testflight/                           # optional, see TestFlight.md
   info/
     en-US.json
     de-DE.json

@@ -1,6 +1,6 @@
 # Pinned endpoint inventory
 
-Generated from Apple OpenAPI 4.4.1. Payload definitions, required fields, relationships, nullable semantics, filters and pagination parameters are in [the focused schema](../contracts/apple-openapi.json). Schema presence establishes payload shape, not account permission or editable state. Every write remains conditional on the domain guards in API-Contract.md and its phase tests. No operation is live-verified. In particular, POST /v2/appAvailabilities and PATCH /v1/territoryAvailabilities/{id} are documented pre-order operations, excluded from general territory reconciliation by [operation policy](../contracts/operation-policy.json).
+Generated from Apple OpenAPI 4.6.1. Payload definitions, required fields, relationships, nullable semantics, filters and pagination parameters are in [the focused schema](../contracts/apple-openapi.json). Schema presence establishes payload shape, not account permission or editable state. Every write remains conditional on the domain guards in API-Contract.md and its phase tests. See the [release evidence](Release.md) for scenarios verified against Apple. In particular, POST /v2/appAvailabilities and PATCH /v1/territoryAvailabilities/{id} are documented pre-order operations, excluded from general territory reconciliation by [operation policy](../contracts/operation-policy.json).
 
 | Method | Path | Request schema | Responses |
 | --- | --- | --- | --- |
@@ -135,3 +135,22 @@ Generated from Apple OpenAPI 4.4.1. Payload definitions, required fields, relati
 | GET | `/v1/profiles/{id}/devices` | None | 200, 400, 401, 403, 404, 429 |
 | GET | `/v1/reviewSubmissions/{id}/relationships/items` | None | 200, 400, 401, 403, 404, 429 |
 | GET | `/v1/reviewSubmissions/{id}/items` | None | 200, 400, 401, 403, 404, 429 |
+| GET | `/v1/apps/{id}/betaGroups` | None | 200, 400, 401, 403, 404, 429 |
+| POST | `/v1/betaGroups` | BetaGroupCreateRequest | 201, 400, 401, 403, 409, 422, 429 |
+| GET | `/v1/betaGroups/{id}` | None | 200, 400, 401, 403, 404, 429 |
+| PATCH | `/v1/betaGroups/{id}` | BetaGroupUpdateRequest | 200, 400, 401, 403, 404, 409, 422, 429 |
+| GET | `/v1/betaGroups/{id}/builds` | None | 200, 400, 401, 403, 404, 429 |
+| POST | `/v1/betaGroups/{id}/relationships/builds` | BetaGroupBuildsLinkagesRequest | 204, 400, 401, 403, 404, 409, 422, 429 |
+| GET | `/v1/apps/{id}/betaAppLocalizations` | None | 200, 400, 401, 403, 404, 429 |
+| POST | `/v1/betaAppLocalizations` | BetaAppLocalizationCreateRequest | 201, 400, 401, 403, 409, 422, 429 |
+| PATCH | `/v1/betaAppLocalizations/{id}` | BetaAppLocalizationUpdateRequest | 200, 400, 401, 403, 404, 409, 422, 429 |
+| GET | `/v1/apps/{id}/betaAppReviewDetail` | None | 200, 400, 401, 403, 404, 429 |
+| PATCH | `/v1/betaAppReviewDetails/{id}` | BetaAppReviewDetailUpdateRequest | 200, 400, 401, 403, 404, 409, 422, 429 |
+| GET | `/v1/builds/{id}/betaBuildLocalizations` | None | 200, 400, 401, 403, 404, 429 |
+| POST | `/v1/betaBuildLocalizations` | BetaBuildLocalizationCreateRequest | 201, 400, 401, 403, 409, 422, 429 |
+| PATCH | `/v1/betaBuildLocalizations/{id}` | BetaBuildLocalizationUpdateRequest | 200, 400, 401, 403, 404, 409, 422, 429 |
+| GET | `/v1/builds/{id}/buildBetaDetail` | None | 200, 400, 401, 403, 404, 429 |
+| PATCH | `/v1/buildBetaDetails/{id}` | BuildBetaDetailUpdateRequest | 200, 400, 401, 403, 404, 409, 422, 429 |
+| GET | `/v1/betaAppReviewSubmissions` | None | 200, 400, 401, 403, 429 |
+| POST | `/v1/betaAppReviewSubmissions` | BetaAppReviewSubmissionCreateRequest | 201, 400, 401, 403, 409, 422, 429 |
+| POST | `/v1/buildBetaNotifications` | BuildBetaNotificationCreateRequest | 201, 400, 401, 403, 409, 422, 429 |
