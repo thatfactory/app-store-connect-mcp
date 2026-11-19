@@ -1,6 +1,6 @@
 # Release and publication
 
-The first published version is `0.1.0` with matching GitHub tag `0.1.0`. Its one-time owner-authenticated npm bootstrap is complete. CI and nightly run the complete Node 24 validation on self-hosted macOS.
+The first published version is `0.1.0` with matching GitHub tag `0.1.0`. Its one-time owner-authenticated npm bootstrap is complete. CI runs Node 24 validation on macOS and Linux. The macOS job and nightly run the native Apple-platform tests. The Linux job matches the publishing environment and skips tests that require native Apple frameworks.
 
 For subsequent versions, merge the reviewed version change to `main`, create its matching tag, and publish the GitHub release. The `release: published` event automatically starts `Publish to npm`; no manual workflow dispatch or environment approval is required. Publishing a GitHub release is the authorization to publish that version to npm. The tag must exactly match `package.json` (for example, `0.1.1`, without a `v` prefix).
 
@@ -15,5 +15,7 @@ Before any publication, verify the release checkout is clean, run `npm ci && npm
 Known evidence limits remain part of the release record. Discovery, export, multi-locale text synchronization, and commerce readback have live evidence. Screenshot synchronization also has live macOS evidence: ten original JPEGs across five locales reached COMPLETE with matching MD5 values and exact ordering; final reconciliation returned noOp. Recovery retained a verified upload and removed only explicitly planned abandoned or stalled reservations. Signing lifecycle and review submission use mocked Apple responses. Review readiness cannot guarantee Apple acceptance, generic availability mutation remains manual, and initial App Store app creation remains a website bootstrap.
 
 Version `0.2.0` adds external TestFlight for iOS and tvOS. Live MCP testing verified an existing internal group, external group creation with its link disabled, public enrollment with a tester cap, dedicated join-link retrieval, no-op repeat plans, and rejection of internal-only builds on both platforms. The test app had no eligible builds. Fixtures cover both platform memberships, review transitions, notification requests, authorization, stale plans, redaction, and lost responses. Live attachment, beta review, notification behavior, and device installation via the link remain unverified.
+
+GitHub release `0.2.0` remains available at its original tag. Its publishing run stopped during Linux validation before uploading to npm. Use `0.2.1` for the TestFlight release on npm.
 
 Creating and publishing a new GitHub release requires owner authorization and now also authorizes the corresponding automatic npm publication. Trusted-publisher configuration changes remain separately authorized.
