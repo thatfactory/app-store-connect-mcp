@@ -90,4 +90,12 @@ async function realReaderFixture(t:test.TestContext,lostResponse:boolean){
   }});
   const args={...selection,root};const reader=new SubmissionReader(args,[checkout],api,()=> 'account');const adapter=new SubmissionAdapter(args,reader,api);return {engine:new PlanEngine([checkout],true),adapter,submitPatches:()=>submitPatches};
 }
-for(const lostResponse of [false,true])test(`real submission reader verifies a ${lostResponse?'lost-response':'successful'} submit after the version becomes noneditable`,async t=>{const f=await realReaderFixture(t,lostResponse);const plan=await f.engine.create(f.adapter);const approval={planId:plan.planId as string,digest:plan.digest as string,operationIds:(plan.operations as any[]).map(op=>op.id),authorization:{confirmedByHost:true as const}};const journal=await f.engine.submit(approval,true);assert.equal(journal.state,'complete',JSON.stringify(journal));assert.equal(f.submitPatches(),1);assert.equal((await f.engine.create(f.adapter)).noOp,true);});
+for(const lostResponse of [false,true])test(`real submission reader verifies a ${lostResponse?'lost-response':'successful'} submit after the version becomes noneditable`,{skip:process.platform!=='darwin'&&'Requires native screenshot decoding through Apple ImageIO'},async t=>{
+  const f=await realReaderFixture(t,lostResponse);
+  const plan=await f.engine.create(f.adapter);
+  const approval={planId:plan.planId as string,digest:plan.digest as string,operationIds:(plan.operations as any[]).map(op=>op.id),authorization:{confirmedByHost:true as const}};
+  const journal=await f.engine.submit(approval,true);
+  assert.equal(journal.state,'complete',JSON.stringify(journal));
+  assert.equal(f.submitPatches(),1);
+  assert.equal((await f.engine.create(f.adapter)).noOp,true);
+});
