@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { AppStoreError } from '../errors.js';
 import { RepositoryFiles, safeRelative } from './files.js';
 import { parseJson } from './json.js';
-import { schemas, domains, platforms, reviewEnvironment, selectionSchema, testflightFeedbackEnvironment, testflightPlatforms, versionString, type Selection, type AppManifest } from './schemas.js';
+import { schemas, domains, platforms, reviewEnvironment, selectionSchema, testflightFeedbackEnvironment, versionString, type Selection, type AppManifest } from './schemas.js';
 export interface Diagnostic {path:string;locale?:string;field:string;rule:string;severity:'error'|'advisory';message:string}
 export interface ValidatedRepository {root:string;images:Record<string,ImageIdentity>;valid:boolean;diagnostics:Diagnostic[];hashes:Record<string,string>;desired:Record<string,unknown>;secretFingerprint:string;measurements:Record<string,{codePoints:number;utf16Units:number;graphemes:number;utf8Bytes:number}>}
 const secretKey=randomBytes(32);
@@ -100,10 +100,10 @@ export async function validateRepository(selection:Selection,allowedRoots:readon
       if(selection.domains&&!Object.keys(review??{}).length&&!desired[notes])report(file,'','missingContent','Supply selected beta review details or review notes.');
     }
     if(selected.has('testflightBuildNotes')){
-      const directories=(Object.keys(testflightPlatforms) as (keyof typeof testflightPlatforms)[]).filter(directory=>
-        (!selection.platform||selection.platform===directory)&&app.platforms.includes(testflightPlatforms[directory]));
+      const directories=(Object.keys(platforms) as (keyof typeof platforms)[]).filter(directory=>
+        (!selection.platform||selection.platform===directory)&&app.platforms.includes(platforms[directory]));
       if(selection.domains&&(!selection.platform||!selection.version||directories.length!==1)){
-        report('testflight/build-notes','','buildNotesSelection','Select an exact iOS or tvOS platform and marketing version declared in app.json.');
+        report('testflight/build-notes','','buildNotesSelection','Select an exact platform declared in app.json and its marketing version.');
       }else for(const directory of directories){
         const prefix=`testflight/build-notes/${directory}`;
         let versions:string[];

@@ -16,6 +16,8 @@ Known evidence limits remain part of the release record. Discovery, export, mult
 
 Version `0.2.0` adds external TestFlight for iOS and tvOS. Live MCP testing verified an existing internal group, external group creation with its link disabled, public enrollment with a tester cap, dedicated join-link retrieval, no-op repeat plans, and rejection of internal-only builds on both platforms. The test app had no eligible builds. Fixtures cover both platform memberships, review transitions, notification requests, authorization, stale plans, redaction, and lost responses. Live attachment, beta review, notification behavior, and device installation via the link remain unverified.
 
-GitHub release `0.2.0` remains available at its original tag. Its publishing run stopped during Linux validation before uploading to npm. Use `0.2.1` for the TestFlight release on npm.
+GitHub release `0.2.0` remains available at its original tag. Its publishing run stopped during Linux validation before uploading to npm. Version `0.2.1` was the first npm release with TestFlight support.
+
+Version `0.2.2` accepts all four App Store Connect prerelease platform values. MCP fixtures verify exact build attachment and localized notes for native macOS and visionOS and for iPad and Apple Watch builds reported as iOS. Live attachment and installation on these devices still require eligible builds.
 
 Creating and publishing a new GitHub release requires owner authorization and now also authorizes the corresponding automatic npm publication. Trusted-publisher configuration changes remain separately authorized.

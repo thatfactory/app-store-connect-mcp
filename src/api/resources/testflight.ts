@@ -1,7 +1,7 @@
 import type { ApiClient, ApiDocument } from '../client.js';
 import { resource, type Attributes, type Resource } from './discovery.js';
 import { AppStoreError } from '../../errors.js';
-import type { TestFlightGroup } from '../../repository/schemas.js';
+import type { ApplePlatform, TestFlightGroup } from '../../repository/schemas.js';
 
 export const betaLocalizationFields = ['description', 'feedbackEmail', 'marketingUrl', 'privacyPolicyUrl', 'tvOsPrivacyPolicy'];
 export const betaReviewFields = ['contactFirstName', 'contactLastName', 'contactPhone', 'contactEmail',
@@ -14,13 +14,12 @@ const externalStates = ['PROCESSING', 'PROCESSING_EXCEPTION', 'MISSING_EXPORT_CO
 const reviewStates = ['WAITING_FOR_REVIEW', 'IN_REVIEW', 'REJECTED', 'APPROVED'] as const;
 type ExternalState = typeof externalStates[number];
 type ReviewState = typeof reviewStates[number];
-export type BetaPlatform = 'IOS' | 'TV_OS';
 export type BetaGroup = {
   id: string; name: string; publicLinkEnabled: boolean;
   publicLinkLimitEnabled: boolean | null; publicLinkLimit: number | null;
 };
 export type BuildIdentity = {
-  id: string; appId: string; platform: BetaPlatform; version: string; buildNumber: string;
+  id: string; appId: string; platform: ApplePlatform; version: string; buildNumber: string;
   processingState: string; audience: string; expired: boolean; expirationDate: string | null;
   usesNonExemptEncryption: boolean | null; encryptionDeclarationState: string | null;
 };
@@ -133,7 +132,7 @@ export class TestFlightApi {
     return (await this.#list(query(`/v1/betaGroups/${groupId}/builds`, {'fields[builds]':'version'}), 'builds', [], signal)).map(entry => entry.id).sort();
   }
 
-  async build(appId: string, buildId: string, expectedPlatform: BetaPlatform, signal?: AbortSignal): Promise<BetaBuild> {
+  async build(appId: string, buildId: string, expectedPlatform: ApplePlatform, signal?: AbortSignal): Promise<BetaBuild> {
     const path = query(`/v1/builds/${buildId}`, {
       include:'app,preReleaseVersion,appEncryptionDeclaration',
       'fields[builds]':[...buildFields,'app','preReleaseVersion','appEncryptionDeclaration'].join(','),
