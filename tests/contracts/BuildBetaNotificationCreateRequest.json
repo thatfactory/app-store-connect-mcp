@@ -1,0 +1,29 @@
+{
+  "schema": "BuildBetaNotificationCreateRequest",
+  "valid": {
+    "data": {
+      "type": "buildBetaNotifications",
+      "relationships": {
+        "build": {
+          "data": {
+            "type": "builds",
+            "id": "build-ios"
+          }
+        }
+      }
+    }
+  },
+  "invalid": {
+    "data": {
+      "type": "buildBetaNotifications",
+      "relationships": {
+        "betaGroups": {
+          "data": {
+            "type": "betaGroups",
+            "id": "external"
+          }
+        }
+      }
+    }
+  }
+}

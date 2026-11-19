@@ -14,7 +14,12 @@ function visit(value) {
   }
   Object.values(value).forEach(visit);
 }
-const paths = Object.fromEntries(Object.keys(pinned.paths).map(path => [path, source.paths[path]]));
+const paths = Object.fromEntries(Object.entries(pinned.paths).map(([path, methods]) => [
+  path, Object.fromEntries(Object.keys(methods).map(method => {
+    if (!source.paths[path]?.[method]) throw new Error(`Missing pinned entry: ${method} ${path}`);
+    return [method, source.paths[path][method]];
+  })),
+]));
 visit(paths);
 const output = JSON.stringify({openapi: source.openapi, info: source.info, paths, components: {schemas}}, null, 2) + '\n';
 if (crypto.createHash('sha256').update(output).digest('hex') !== provenance.excerptSha256) throw new Error('Excerpt differs from reviewed contract');

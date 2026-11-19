@@ -35,6 +35,20 @@ test('submission has a distinct workflow instead of ordinary version sync', () =
   assert.ok(schema.paths['/v1/reviewSubmissionItems'].post);
   assert.equal(schema.components.schemas.ReviewSubmissionUpdateRequest.properties.data.properties.attributes.properties.submitted.type, 'boolean');
 });
+test('TestFlight writes are pinned and separated by executor', () => {
+  const {testflightConfiguration, testflightDistribution} = JSON.parse(fs.readFileSync(new URL('../../contracts/operation-policy.json', import.meta.url)));
+  assert.equal(testflightConfiguration.executor, 'apply_plan');
+  assert.equal(testflightDistribution.executor, 'apply_testflight_distribution');
+  assert.deepEqual(testflightDistribution.requiresFlags, ['--allow-writes', '--allow-beta-distribution']);
+  assert.ok(testflightConfiguration.allowedOperations.includes('POST /v1/betaGroups'));
+  assert.ok(testflightDistribution.allowedOperations.includes('POST /v1/betaGroups/{id}/relationships/builds'));
+  for (const operation of testflightDistribution.allowedOperations) assert.ok(!testflightConfiguration.allowedOperations.includes(operation));
+  for (const operation of [...testflightConfiguration.allowedOperations, ...testflightDistribution.allowedOperations]) {
+    const [method, endpoint] = operation.split(' ');
+    assert.ok(schema.paths[endpoint][method.toLowerCase()]);
+  }
+  assert.equal(schema.paths['/v1/betaGroups/{id}'].delete, undefined);
+});
 
 // Focused structural fixture checker, not a general JSON Schema implementation.
 function accepts(value, rule) {

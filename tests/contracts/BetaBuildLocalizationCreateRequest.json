@@ -1,0 +1,37 @@
+{
+  "schema": "BetaBuildLocalizationCreateRequest",
+  "valid": {
+    "data": {
+      "type": "betaBuildLocalizations",
+      "attributes": {
+        "locale": "en-US",
+        "whatsNew": "Test the first screen."
+      },
+      "relationships": {
+        "build": {
+          "data": {
+            "type": "builds",
+            "id": "build-ios"
+          }
+        }
+      }
+    }
+  },
+  "invalid": {
+    "data": {
+      "type": "betaBuildLocalizations",
+      "attributes": {
+        "locale": "en-US",
+        "whatsNew": "Test the first screen."
+      },
+      "relationships": {
+        "app": {
+          "data": {
+            "type": "apps",
+            "id": "1234"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "schema": "BetaGroupCreateRequest",
+  "valid": {
+    "data": {
+      "type": "betaGroups",
+      "attributes": {
+        "name": "External Candidates",
+        "isInternalGroup": false,
+        "publicLinkEnabled": false
+      },
+      "relationships": {
+        "app": {
+          "data": {
+            "type": "apps",
+            "id": "1234"
+          }
+        }
+      }
+    }
+  },
+  "invalid": {
+    "data": {
+      "type": "betaGroups",
+      "attributes": {
+        "name": "External Candidates",
+        "isInternalGroup": false,
+        "publicLinkEnabled": false
+      },
+      "relationships": {
+        "app": {
+          "data": {
+            "type": "builds",
+            "id": "1234"
+          }
+        }
+      }
+    }
+  }
+}

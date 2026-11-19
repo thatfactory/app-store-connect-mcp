@@ -1,0 +1,21 @@
+{
+  "schema": "BetaBuildLocalizationUpdateRequest",
+  "valid": {
+    "data": {
+      "type": "betaBuildLocalizations",
+      "id": "build-locale",
+      "attributes": {
+        "whatsNew": "Test the first screen."
+      }
+    }
+  },
+  "invalid": {
+    "data": {
+      "type": "betaBuildLocalizations",
+      "id": "build-locale",
+      "attributes": {
+        "description": "Test the first screen."
+      }
+    }
+  }
+}

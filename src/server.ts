@@ -2,6 +2,7 @@ import {registerScreenshots} from './tools/screenshots.js';
 import {registerCommerce} from './tools/commerce.js';
 import {registerSigning} from './tools/signing.js';
 import {registerSubmission} from './tools/submission.js';
+import {registerTestFlight} from './tools/testflight.js';
 import { registerMetadata } from './tools/metadata.js';
 import { registerProvisioning } from './tools/provisioning.js';
 import { PlanEngine } from './planning/engine.js';
@@ -13,7 +14,7 @@ import { schemas } from './repository/schemas.js';
 import { registerRepository } from './tools/repository.js';
 import { registerCapabilities } from './tools/capabilities.js';
 import type { Configuration } from './config.js';
-export const VERSION = '0.1.0';
+export const VERSION = '0.2.0';
 export function createServer(config: Configuration): McpServer {
   const server = new McpServer({name: 'app-store-connect-mcp', version: VERSION});
   registerCapabilities(server, config);
@@ -27,6 +28,7 @@ export function createServer(config: Configuration): McpServer {
   registerCommerce(server,config,plans);
   registerSigning(server,config,plans);
   registerSubmission(server,config,plans);
+  registerTestFlight(server,config,plans);
   for (const name of Object.keys(schemas)) {
     const uri = `appstore-connect://schemas/${name}`;
     server.registerResource(`schema-${name}`, uri, {mimeType: "application/schema+json"}, async () => ({contents: [{uri, mimeType: "application/schema+json", text: await readFile(new URL(`../resources/schemas/${name}.json`, import.meta.url), "utf8")}]}));

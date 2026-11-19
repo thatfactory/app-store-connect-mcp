@@ -10,7 +10,47 @@
   "preOrderMutation": {
     "status": "outOfScope",
     "enabled": false,
-    "documentedOperations": ["POST /v2/appAvailabilities", "PATCH /v1/territoryAvailabilities/{id}"],
-    "requiredEvidence": ["explicit pre-order intent", "eligible pre-order state", "verified release dates and territory semantics", "separate reviewed implementation"]
+    "documentedOperations": [
+      "POST /v2/appAvailabilities",
+      "PATCH /v1/territoryAvailabilities/{id}"
+    ],
+    "requiredEvidence": [
+      "explicit pre-order intent",
+      "eligible pre-order state",
+      "verified release dates and territory semantics",
+      "separate reviewed implementation"
+    ]
+  },
+  "testflightConfiguration": {
+    "enabled": true,
+    "executor": "apply_plan",
+    "requiresFlags": [
+      "--allow-writes"
+    ],
+    "allowedOperations": [
+      "POST /v1/betaGroups",
+      "POST /v1/betaAppLocalizations",
+      "PATCH /v1/betaAppLocalizations/{id}",
+      "PATCH /v1/betaAppReviewDetails/{id}"
+    ],
+    "guard": "External group creation always requests publicLinkEnabled=false; metadata changes are scoped to expressly selected values."
+  },
+  "testflightDistribution": {
+    "enabled": true,
+    "executor": "apply_testflight_distribution",
+    "requiresFlags": [
+      "--allow-writes",
+      "--allow-beta-distribution"
+    ],
+    "allowedOperations": [
+      "PATCH /v1/betaGroups/{id}",
+      "POST /v1/betaBuildLocalizations",
+      "PATCH /v1/betaBuildLocalizations/{id}",
+      "PATCH /v1/buildBetaDetails/{id}",
+      "POST /v1/betaGroups/{id}/relationships/builds",
+      "POST /v1/betaAppReviewSubmissions",
+      "POST /v1/buildBetaNotifications"
+    ],
+    "guard": "Exact verified app, group and selected builds; separate plans for attachment, submission, notification and public enrollment."
   }
 }

@@ -1,6 +1,6 @@
 # Public API contract
 
-Audit baseline: 2026-09-06, official OpenAPI **4.4.1**. [Provenance](../contracts/provenance.json) pins the archive, full JSON and focused excerpt independently. [Endpoint inventory](API-Endpoints.md) maps every selected method/path to its request schema and response codes. The [schema](../contracts/apple-openapi.json) is Apple's payload contract, not this package's tool surface. Apple retains ownership of these specification excerpts; the repository MIT license applies to original implementation code.
+Audit baseline updated 2026-11-19 to official OpenAPI **4.6.1**. [Provenance](../contracts/provenance.json) pins the archive, full JSON and focused excerpt independently. [Endpoint inventory](API-Endpoints.md) maps every selected method/path to its request schema and response codes. The [schema](../contracts/apple-openapi.json) is Apple's payload contract, not this package's tool surface. Apple retains ownership of these specification excerpts; the repository MIT license applies to original implementation code.
 
 Reproduce by downloading the source URL in provenance, extracting `openapi.oas (2).json`, and running `node scripts/extract-contract.mjs /path/to/extracted.json`. A changed hash requires a deliberate contract audit. No live credentials or account data were used in this audit.
 
@@ -20,6 +20,12 @@ Reproduce by downloading the source URL in provenance, extracting `openapi.oas (
 | Availability writes | POST /v2/appAvailabilities and PATCH /v1/territoryAvailabilities/{id} are documented for pre-orders | Generic post-release territory mutation is conditional and disabled; manualActionRequired fallback. Pre-order management is outside v1 |
 | Provisioning | Certificate CSR creation, device operations, profile relationships are schema-defined | Exact explicit resources; unknown compatibility and destructive effects block; no private-key input |
 | Submission | Create reviewSubmission, create item referencing version, update submitted | Separate authorization/flag; compatible existing draft only; no ordinary apply; release behavior warning |
+
+## OpenAPI 4.6.1 audit
+
+The update retained all previously pinned operations and response codes. The existing route changes concern sparse fields and include parameters. Apple removed the deprecated AppInfo `kidsAgeBand` attribute and added fields and relationships for age ratings, app assets and placements, retention messages, Game Center, and group purchase invitations. Localization, app and review item write schemas gained optional attributes or relationships. Existing adapters use none of the removed or newly added fields. This release adds only the methods used by the TestFlight adapter and the schemas referenced by them.
+
+TestFlight configuration uses disabled-link external group creation and scoped beta metadata. TestFlight distribution has a separate executor for public enrollment changes, build localizations, auto-notify, attachment, beta review submission and manual notification. The [operation policy](../contracts/operation-policy.json) enumerates these methods. See [TestFlight](TestFlight.md) for exact build guards, recovery and interpretation of Apple states.
 
 ## State, permissions and failures
 

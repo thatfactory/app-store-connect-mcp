@@ -26,6 +26,7 @@ export interface Adapter {
   readonly domain:string;
   capture(signal?:AbortSignal):Promise<Snapshot>;
   propose(snapshot:Snapshot):Operation[];
+  checkOperation?(operation:Readonly<Operation>,snapshot:Snapshot):void;
   execute(operation:Readonly<Operation>,signal?:AbortSignal):Promise<void>;
   summary?(snapshot:Snapshot):Json;
   remoteIds?(operation:Readonly<Operation>,snapshot:Snapshot):string[];

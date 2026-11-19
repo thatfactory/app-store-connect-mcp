@@ -21,7 +21,12 @@
     "download_signing_artifact",
     "check_release_readiness",
     "plan_submission",
-    "submit_for_review"
+    "submit_for_review",
+    "get_testflight_state",
+    "get_testflight_join_link",
+    "plan_testflight_configuration",
+    "plan_testflight_distribution",
+    "apply_testflight_distribution"
   ],
   "supportedLocales": [
     "en-US",
@@ -40,7 +45,9 @@
     "multi-locale metadata synchronization",
     "unmanaged-locale preservation and repeated metadata no-op",
     "free price and configured-territory readback",
-    "macOS screenshot synchronization with verified checksums, order and no-op reconciliation"
+    "macOS screenshot synchronization with verified checksums, order and no-op reconciliation",
+    "TestFlight external group creation, public link policy and dedicated join-link retrieval",
+    "TestFlight internal-only build rejection for iOS and tvOS"
   ],
   "planEngineImplemented": true,
   "provisioningCapabilities": [
@@ -72,5 +79,15 @@
     "buildSelection": "exact existing processed build ID",
     "manualChecks": "privacy, age rating, agreements and regional obligations remain explicit",
     "execution": "separate allow-submission gate and submission-only plan"
+  },
+  "testflight": {
+    "platforms": [
+      "IOS",
+      "TV_OS"
+    ],
+    "configuration": "Reviewed external group creation with its link disabled, beta app localizations and beta review details",
+    "distribution": "Exact build attachment, What to Test, build-wide auto-notify, explicit later review and notification, and separate group public link policy",
+    "execution": "Independent allow-beta-distribution gate with write mode and exact host approval",
+    "evidence": "Fixture-tested with separately recorded live acceptance"
   }
 }

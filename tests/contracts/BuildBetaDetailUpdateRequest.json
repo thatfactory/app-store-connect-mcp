@@ -1,0 +1,21 @@
+{
+  "schema": "BuildBetaDetailUpdateRequest",
+  "valid": {
+    "data": {
+      "type": "buildBetaDetails",
+      "id": "build-detail",
+      "attributes": {
+        "autoNotifyEnabled": false
+      }
+    }
+  },
+  "invalid": {
+    "data": {
+      "type": "buildBetaDetails",
+      "id": "build-detail",
+      "attributes": {
+        "autoNotifyEnabled": "false"
+      }
+    }
+  }
+}

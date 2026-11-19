@@ -1,6 +1,6 @@
 # Sources and evidence
 
-Retrieved 2026-09-06. Apple documentation and the pinned 4.4.1 OpenAPI specification are primary sources. The initial attachments' S/R labels were not accompanied by their bibliography; the links below replace that missing bibliography, without claiming reconstruction of its numbering.
+The original Apple documentation was retrieved 2026-09-06. The pinned OpenAPI specification was updated to 4.6.1 on 2026-11-19. See the [TestFlight documentation](TestFlight.md) for the beta-specific Apple references. The initial attachments' S/R labels were not accompanied by their bibliography; the links below replace that missing bibliography, without claiming reconstruction of its numbering.
 
 - [API and official schema download](https://developer.apple.com/documentation/appstoreconnectapi/): payload source; exact checksum in contracts/provenance.json.
 - [Apps](https://developer.apple.com/documentation/appstoreconnectapi/apps): manual initial app creation.

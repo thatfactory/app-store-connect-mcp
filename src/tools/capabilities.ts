@@ -10,7 +10,7 @@ export function registerCapabilities(server: McpServer, config: Configuration): 
   }, async (_args, extra) => {
     if (extra.signal.aborted) return {isError: true, content: [{type: 'text', text: 'Request cancelled.'}]};
     const packaged=JSON.parse(await readFile(new URL('../../resources/capabilities.json',import.meta.url),'utf8'));
-    const result={...packaged,allowedRootCount:config.allowedRoots.length,allowWrites:config.allowWrites,allowSubmission:config.allowSubmission};
+    const result={...packaged,allowedRootCount:config.allowedRoots.length,allowWrites:config.allowWrites,allowSubmission:config.allowSubmission,allowBetaDistribution:config.allowBetaDistribution};
     return {content: [{type: 'text', text: JSON.stringify(result)}], structuredContent: result};
   });
 }

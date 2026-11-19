@@ -26,6 +26,7 @@ It lets MCP-capable agents validate listing content, inspect App Store Connect, 
 | Plan screenshot and commerce changes | `plan_screenshot_changes`, `plan_commerce_changes` |
 | Manage certificates, devices, and profiles | `get_provisioning_resources`, `plan_signing_changes`, `download_signing_artifact` |
 | Apply an approved plan and inspect recovery state | `apply_plan`, `get_operation_status` |
+| Manage external TestFlight groups and distribute exact iOS and tvOS builds | `get_testflight_state`, `plan_testflight_configuration`, `plan_testflight_distribution`, `apply_testflight_distribution`, `get_testflight_join_link` |
 | Check readiness and submit a prepared version | `check_release_readiness`, `plan_submission`, `submit_for_review` |
 
 Changes are planned before they are applied. Omitted fields remain untouched, repeated synchronization converges to no changes, and ordinary synchronization cannot submit an app for review.
@@ -78,7 +79,7 @@ codex mcp add app-store-connect \
   --allowed-root /absolute/path/to/app-repository
 ```
 
-The server starts without remote write access. Add `--allow-writes` to permit approved plans. Add `--allow-submission` together with `--allow-writes` only when review submission is intended.
+The server starts without remote write access. Add `--allow-writes` to permit approved plans. Add `--allow-submission` together with `--allow-writes` for production App Store review. Add `--allow-beta-distribution` together with `--allow-writes` to execute TestFlight distribution plans.
 
 ## Available Tools
 
@@ -102,6 +103,11 @@ The server starts without remote write access. Add `--allow-writes` to permit ap
 - `check_release_readiness()`
 - `plan_submission()`
 - `submit_for_review()`
+- `get_testflight_state()`
+- `get_testflight_join_link()`
+- `plan_testflight_configuration()`
+- `plan_testflight_distribution()`
+- `apply_testflight_distribution()`
 
 Use `get_capabilities` for the packaged implementation contract and each tool's MCP schema for its complete input shape.
 
@@ -135,7 +141,7 @@ The initial app record must be created in App Store Connect when one does not ex
 
 Plans are bound to local inputs and relevant remote state. Review the digest and operation IDs returned by a planning tool before calling `apply_plan`. If an operation reports `outcomeUnknown`, inspect it with `get_operation_status` instead of replaying the write.
 
-More detail is available in [metadata synchronization](Documentation/Metadata-Sync.md), [screenshot synchronization](Documentation/Screenshot-Sync.md), [commerce](Documentation/Commerce.md), [provisioning and Xcode inspection](Documentation/Provisioning-and-Xcode.md), [signing](Documentation/Signing.md), [submission](Documentation/Submission.md), and [plan recovery](Documentation/Plan-and-Apply.md).
+More detail is available in [metadata synchronization](Documentation/Metadata-Sync.md), [screenshot synchronization](Documentation/Screenshot-Sync.md), [commerce](Documentation/Commerce.md), [provisioning and Xcode inspection](Documentation/Provisioning-and-Xcode.md), [signing](Documentation/Signing.md), [submission](Documentation/Submission.md), [TestFlight](Documentation/TestFlight.md), and [plan recovery](Documentation/Plan-and-Apply.md).
 
 ## Local Development
 
